@@ -1,7 +1,5 @@
 ##fileformat=VCFv4.2
 ##FILTER=<ID=PASS,Description="All filters passed">
-##bcftoolsVersion=1.11+htslib-1.11
-##bcftoolsCommand=mpileup --fasta-ref /home/david/source/repos/repeat_metrics/test/test_data/test.fasta -
 ##reference=file:///home/david/source/repos/repeat_metrics/test/test_data/test.fasta
 ##contig=<ID=1,length=102>
 ##contig=<ID=mh_2_1_f,length=120>
@@ -46,9 +44,5 @@
 ##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
 ##INFO=<ID=DP4,Number=4,Type=Integer,Description="Number of high-quality ref-forward , ref-reverse, alt-forward and alt-reverse bases">
 ##INFO=<ID=MQ,Number=1,Type=Integer,Description="Average mapping quality">
-##bcftools_callVersion=1.11+htslib-1.11
-##bcftools_callCommand=call -P 1 -m -v -O u -; Date=Fri Apr 23 16:45:11 2021
-##bcftools_normVersion=1.11+htslib-1.11
-##bcftools_normCommand=norm -f /home/david/source/repos/repeat_metrics/test/test_data/test.fasta; Date=Fri Apr 23 16:45:11 2021
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	Sample1
 1	26	.	A	AAGG	41.9572	.	INDEL;IDV=1;IMF=1;DP=1;SGB=-0.379885;MQ0F=0;AC=2;AN=2;DP4=0,0,1,0;MQ=42	GT:PL	1/1:42,3,0
