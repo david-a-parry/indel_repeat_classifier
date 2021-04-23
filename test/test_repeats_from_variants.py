@@ -51,6 +51,13 @@ def test_ins():
         assert_equal(result, expected)
     
 
+def test_microhomology():
+    size2del = {2: 'TC',
+                3: 'TTC',
+                4: 'TATC',
+                5: 'TAGTC',
+                7: 'TAGCCTC'}
+
 if __name__ == '__main__':
     import nose
     nose.run(defaultTest=__name__)

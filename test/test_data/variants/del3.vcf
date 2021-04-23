@@ -22,8 +22,8 @@
 ##contig=<ID=mh_5_3_r,length=120>
 ##contig=<ID=mh_5_4_f,length=120>
 ##contig=<ID=mh_5_4_r,length=120>
-##contig=<ID=mh_5_5_f,length=120>
-##contig=<ID=mh_5_5_r,length=120>
+##contig=<ID=mh_7_6_f,length=120>
+##contig=<ID=mh_7_6_r,length=120>
 ##ALT=<ID=*,Description="Represents allele(s) other than observed.">
 ##INFO=<ID=INDEL,Number=0,Type=Flag,Description="Indicates that the variant is an INDEL.">
 ##INFO=<ID=IDV,Number=1,Type=Integer,Description="Maximum number of raw reads supporting an indel">

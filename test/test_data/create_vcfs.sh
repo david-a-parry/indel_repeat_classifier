@@ -3,11 +3,13 @@
 source_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 ref=${source_dir}/test.fasta
 var_dir=${source_dir}/variants
+ref_dir=${source_dir}/refs
 set -exou pipefail
 
 mkdir -p $var_dir
 
-pyfasta split --header="${var_dir}/%(seqid)s.fasta" ${source_dir}/indels.fasta 
+pyfasta split --header="${var_dir}/%(seqid)s.fasta" ${source_dir}/indels.fasta
+pyfasta split --header="${ref_dir}/%(seqid)s.fasta" ${source_dir}/test.fasta
 rename -v s/\ .+/.fasta/ ${var_dir}/*.fasta
 
 bowtie2-build $ref $ref
@@ -17,7 +19,8 @@ do
     echo $(date) Processing $var
     if [[ "$var" =~ mh_[0-9]_[0-9]_ ]]
     then
-        ref_fasta=${source_dir}/refs/$(basename $var )
+        ref_fasta=${ref_dir}/$(basename $var )
+        bowtie2-build $ref_fasta $ref_fasta
     else
         ref_fasta=$ref
     fi
