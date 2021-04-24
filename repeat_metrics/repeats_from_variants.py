@@ -150,7 +150,7 @@ def cosmic_ID83_classification(variant, fasta, allele=1):
     if rpt_type == 'Imperfect':
         return '{}:{}:M:{}'.format(min(var_len, 5), var_type, rpt_len)
     rpt_size = int(rpt_len/var_len)
-    if rpt_size > 0:
+    if rpt_size > 0 and var_type == 'Del':
         rpt_size -= 1
     rpt_size = rpt_size if rpt_size < 5 else 5
     if var_len == 1:  # can only be perfect homopolymer repeat or no repeat

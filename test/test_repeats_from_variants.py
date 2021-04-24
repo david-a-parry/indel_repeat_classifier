@@ -38,7 +38,7 @@ def test_dels():
         records = get_variants(os.path.join(var_path, vcf))
         result = repeats_from_variant(records[0], fasta)
         assert_equal(result, expected)
-    
+
 
 def test_ins():
     ''' Identify insertions in perfect repeats '''
@@ -53,7 +53,7 @@ def test_ins():
         records = get_variants(os.path.join(var_path, vcf))
         result = repeats_from_variant(records[0], fasta)
         assert_equal(result, expected)
-    
+
 
 def test_microhomology():
     ''' Identify deletions with microhomology '''
@@ -116,9 +116,17 @@ def test_mh_cosmic_classification():
 
 def test_ins_cosmic_classification():
     ''' Test COSMIC ID83 classification of insertions'''
-    raise NotImplementedError("Insertion tests still to do")
-
-
+    vcf2expected = {"ins1.vcf": '2:Ins:R:0',
+                    "ins2.vcf": '2:Ins:R:2',
+                    "ins3.vcf": '5:Ins:R:3',
+                    "ins4.vcf": '3:Ins:R:1',
+                    "ins5.vcf": '1:Ins:T:2'
+                    }
+    fasta = Fasta(ref_fasta, as_raw=True, sequence_always_upper=True)
+    for vcf, expected in vcf2expected.items():
+        records = get_variants(os.path.join(var_path, vcf))
+        result = cosmic_ID83_classification(records[0], fasta)
+        assert_equal(result, expected)
 
 
 if __name__ == '__main__':
