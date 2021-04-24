@@ -7,6 +7,7 @@ _t_path = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
 _r_path = os.path.join(_t_path, os.pardir, 'repeat_metrics')
 sys.path.insert(0, _r_path)
 from repeats_from_variants import repeats_from_variant
+from repeats_from_variants import cosmic_ID83_classification
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 var_path = os.path.join(dir_path, 'test_data', 'variants')
@@ -80,6 +81,35 @@ def test_microhomology():
         expected = ('Del', 'Imperfect', mh_seq, j)
         result = repeats_from_variant(records[0], fasta)
         assert_equal(result, expected)
+
+
+def test_del_cosmic_classification():
+    ''' Test COSMIC ID83 classification of deletions'''
+    vcf2expected = {"del1.vcf": '4:Del:R:0',
+                    "del2.vcf": '2:Del:R:1',
+                    "del3.vcf": '4:Del:R:0',
+                    "del4.vcf": '3:Del:R:3',
+                    "del5.vcf": '5:Del:R:0',
+                    "del6.vcf": '1:Del:T:1',
+                    "del7.vcf": '5:Del:R:0',
+                    }
+    fasta = Fasta(ref_fasta, as_raw=True, sequence_always_upper=True)
+    for vcf, expected in vcf2expected.items():
+        records = get_variants(os.path.join(var_path, vcf))
+        result = cosmic_ID83_classification(records[0], fasta)
+        expected = vcf2expected[vcf]
+        assert_equal(result, expected)
+
+
+def test_ins_cosmic_classification():
+    ''' Test COSMIC ID83 classification of insertions'''
+    raise NotImplementedError("Insertion tests still to do")
+
+
+def test_mh_cosmic_classification():
+    ''' Test COSMIC ID83 classification of deletions with microhomology'''
+    raise NotImplementedError("MH tests still to do")
+
 
 
 if __name__ == '__main__':
