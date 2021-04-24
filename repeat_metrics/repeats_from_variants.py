@@ -3,12 +3,10 @@ import re
 
 def simplify_repeat(rpt):
     '''
-    
     Represent a repeat unit in its simplest form.
 
     e.g. if regex found 'TTTTT' repeat unit, represent as 'T'
          if regex found 'TCTC' repeat unit, represent as 'TC'
-    
     '''
     r_len = len(rpt)
     for i in range(1, int(r_len/2) + 1):
@@ -40,7 +38,7 @@ def find_perfect_repeats_insertion(insertion, seq):
 
 
 def find_microhomology(indel, seq, p):
-    ''' Find microhomogies of indel at position p of seq. '''
+    ''' Find microhomologies of indel at position p of seq. '''
     rpt_len, mh = 0, None
     i_len = len(indel)
     j = p + i_len
