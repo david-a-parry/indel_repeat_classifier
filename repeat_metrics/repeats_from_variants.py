@@ -1,5 +1,9 @@
 import re
 
+nt_conversion = {'A': 'T',
+                 'C': 'C',
+                 'G': 'G',
+                 'T': 'T'}
 
 def simplify_repeat(rpt):
     '''
@@ -137,18 +141,23 @@ def repeats_from_variant(variant, fasta, allele=1, min_flanks=20):
     return var_type, rpt_type, rpt_unit, rpt_len
 
 
-def cosmic_classification(variant, fasta, allele=1):
-    raise NotImplementedError()
+def cosmic_ID83_classification(variant, fasta, allele=1):
     var_type, rpt_type, rpt_unit, rpt_len = repeats_from_variant(variant,
                                                                  fasta,
                                                                  allele)
     rpt_size = 0
-    var_len = max(abs(len(variant.ref) - len(variant.alleles[allele])), 5)
-    if rpt_type == 'Perfect':
-        rpt_size = int(rpt_len/var_len)
-        if rpt_size > 4:
-            rpt_size = 5
-        return '{}:{}:R:{}'.format(var_len, var_type, rpt_size)
+    var_len = abs(len(variant.ref) - len(variant.alleles[allele]))
     if rpt_type == 'Imperfect':
-        return '{}:{}:M:{}'.format(var_len, var_type, rpt_len)
-    return None
+        return '{}:{}:M:{}'.format(min(var_len, 5), var_type, rpt_len)
+    rpt_size = int(rpt_len/var_len)
+    if rpt_size > 0:
+        rpt_size -= 1
+    rpt_size = rpt_size if rpt_size < 5 else 5
+    if var_len == 1:  # can only be perfect homopolymer repeat or no repeat
+        ref, alt, pos = simplify_variant(variant)
+        if var_type == 'Del':
+            nt = nt_conversion[ref[1]]
+        else:
+            nt = nt_conversion[alt[1]]
+        return ('1:{}:{}:{}'.format(var_type, nt, rpt_size))
+    return '{}:{}:R:{}'.format(min(var_len, 5), var_type, min(rpt_size, 5))
