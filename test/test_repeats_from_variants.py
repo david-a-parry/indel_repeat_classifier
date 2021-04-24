@@ -101,14 +101,23 @@ def test_del_cosmic_classification():
         assert_equal(result, expected)
 
 
+def test_mh_cosmic_classification():
+    ''' Test COSMIC ID83 classification of deletions with microhomology'''
+    for i in range(2, 6):
+        for j in range(i - 1, i):
+            base = "mh_{}_{}_f".format(i, j)
+            mh_fa = os.path.join(fa_path, base + '.fasta')
+            records = get_variants(os.path.join(var_path, base + '.vcf'))
+            fasta = Fasta(mh_fa, as_raw=True, sequence_always_upper=True)
+            expected = '{}:Del:M:{}'.format(i, j)
+            result = cosmic_ID83_classification(records[0], fasta)
+            assert_equal(result, expected)
+
+
 def test_ins_cosmic_classification():
     ''' Test COSMIC ID83 classification of insertions'''
     raise NotImplementedError("Insertion tests still to do")
 
-
-def test_mh_cosmic_classification():
-    ''' Test COSMIC ID83 classification of deletions with microhomology'''
-    raise NotImplementedError("MH tests still to do")
 
 
 
