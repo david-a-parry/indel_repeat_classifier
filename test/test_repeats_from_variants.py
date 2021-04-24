@@ -10,6 +10,7 @@ from repeats_from_variants import repeats_from_variant
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 var_path = os.path.join(dir_path, 'test_data', 'variants')
+fa_path = os.path.join(dir_path, 'test_data', 'refs')
 ref_fasta = os.path.join(dir_path, 'test_data', 'test.fasta')
 
 
@@ -57,6 +58,26 @@ def test_microhomology():
                 4: 'TATC',
                 5: 'TAGTC',
                 7: 'TAGCCTC'}
+    for i in range(2, 6):
+        for j in range(i - 1, i):
+            base = "mh_{}_{}_f".format(i, j)
+            mh_fa = os.path.join(fa_path, base + '.fasta')
+            records = get_variants(os.path.join(var_path, base + '.vcf'))
+            fasta = Fasta(mh_fa, as_raw=True, sequence_always_upper=True)
+            mh_seq = size2del[i][:j]
+            expected = ('Del', 'Imperfect', mh_seq, j)
+            result = repeats_from_variant(records[0], fasta)
+            assert_equal(result, expected)
+    for base, mh_seq, j in zip(["mh_2_1_r", "mh_7_6_f"],
+                               ['C', 'TAGCCT'],
+                               [1, 6]):
+        mh_fa = os.path.join(fa_path, base + '.fasta')
+        records = get_variants(os.path.join(var_path, base + '.vcf'))
+        fasta = Fasta(mh_fa, as_raw=True, sequence_always_upper=True)
+        expected = ('Del', 'Imperfect', mh_seq, j)
+        result = repeats_from_variant(records[0], fasta)
+        assert_equal(result, expected)
+
 
 if __name__ == '__main__':
     import nose
