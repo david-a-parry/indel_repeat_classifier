@@ -39,13 +39,29 @@ def find_perfect_repeats_insertion(insertion, seq):
     return 0
 
 
-def find_microhomology(indel, seq, i):
-    '''
-    Find microhomogies of indel at position i of seq.
-
-    TODO!
-    '''
-    return 0, None  # TODO
+def find_microhomology(indel, seq, p):
+    ''' Find microhomogies of indel at position p of seq. '''
+    rpt_len, mh = 0, None
+    i_len = len(indel)
+    j = p + i_len
+    for i in range(1, i_len):
+        if seq[j:j+i] == indel[:i]:
+            rpt_len = i
+            mh = indel[:i]
+        else:
+            break
+    indel = indel[::-1]
+    seq = seq[::-1]
+    p = len(seq) - p - i_len
+    j = p + i_len
+    for i in range(1, i_len):  # check reverse orientation
+        if seq[j:j+i] == indel[:i]:
+            if i > rpt_len:
+                rpt_len = i
+                mh = indel[:i]
+        else:
+            break
+    return rpt_len, mh
 
 
 def simplify_variant(variant, allele=1):
@@ -110,7 +126,9 @@ def repeats_from_variant(variant, fasta, allele=1, min_flanks=20):
             rpt_type = "Perfect"
             rpt_unit = basic_rpt
         else:
-            rpt_len, rpt_unit = find_microhomology(ref[1:], seq, flanks)
+            rpt_len, rpt_unit = find_microhomology(ref[1:], seq, l_flank + 1)
+            if rpt_len:
+                rpt_type = "Imperfect"
     else:
         var_type = 'Ins'
         basic_rpt = simplify_repeat(alt[1:])
