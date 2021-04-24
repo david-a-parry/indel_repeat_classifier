@@ -23,6 +23,7 @@ def get_variants(path):
 
 
 def test_dels():
+    ''' Identify deletions in perfect repeats '''
     vcf2expected = {"del1.vcf": ('Del', None, None, 0),
                     "del2.vcf": ('Del', 'Perfect', 'GA', 4),
                     "del3.vcf": ('Del', 'Perfect', 'GA', 4),
@@ -39,6 +40,7 @@ def test_dels():
     
 
 def test_ins():
+    ''' Identify insertions in perfect repeats '''
     vcf2expected = {"ins1.vcf": ('Ins', None, None, 0),
                     "ins2.vcf": ('Ins', 'Perfect', 'GA', 4),
                     "ins3.vcf": ('Ins', 'Perfect', 'CGATG', 15),
@@ -53,6 +55,7 @@ def test_ins():
     
 
 def test_microhomology():
+    ''' Identify deletions with microhomology '''
     size2del = {2: 'TC',
                 3: 'TTC',
                 4: 'TATC',
