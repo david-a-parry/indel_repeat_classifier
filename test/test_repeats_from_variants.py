@@ -87,11 +87,11 @@ def test_del_cosmic_classification():
     ''' Test COSMIC ID83 classification of deletions'''
     vcf2expected = {"del1.vcf": '4:Del:R:0',
                     "del2.vcf": '2:Del:R:1',
-                    "del3.vcf": '4:Del:R:0',
+                    "del3.vcf": '4:Del:M:1',
                     "del4.vcf": '3:Del:R:3',
                     "del5.vcf": '5:Del:R:0',
                     "del6.vcf": '1:Del:T:1',
-                    "del7.vcf": '5:Del:R:0',
+                    "del7.vcf": '5:Del:M:5',
                     }
     fasta = Fasta(ref_fasta, as_raw=True, sequence_always_upper=True)
     for vcf, expected in vcf2expected.items():

@@ -148,11 +148,10 @@ def cosmic_ID83_classification(variant, fasta, allele=1):
     rpt_size = 0
     var_len = abs(len(variant.ref) - len(variant.alleles[allele]))
     if rpt_type == 'Imperfect':
-        return '{}:{}:M:{}'.format(min(var_len, 5), var_type, rpt_len)
+        return '{}:{}:M:{}'.format(min(var_len, 5), var_type, min(rpt_len, 5))
     rpt_size = int(rpt_len/var_len)
     if rpt_size > 0 and var_type == 'Del':
         rpt_size -= 1
-    rpt_size = rpt_size if rpt_size < 5 else 5
     if var_len == 1:  # can only be perfect homopolymer repeat or no repeat
         ref, alt, pos = simplify_variant(variant)
         if var_type == 'Del':
@@ -160,4 +159,14 @@ def cosmic_ID83_classification(variant, fasta, allele=1):
         else:
             nt = nt_conversion[alt[1]]
         return ('1:{}:{}:{}'.format(var_type, nt, rpt_size))
+    if rpt_size == 0 and rpt_type == 'Perfect':
+        #  if entire deletion does not repeat COSMIC considers it microhomology
+        #  even in case of e.g. 'GAGA' deletion in a perfect 'GAGAGA' repeat
+        ref, alt, pos = simplify_variant(variant)
+        start = pos - var_len
+        end = pos + var_len * 2
+        seq = fasta[variant.chrom][start:end]
+        rpt_len, rpt_unit = find_microhomology(ref[1:], seq, var_len)
+        if rpt_len:
+            return '{}:Del:M:{}'.format(min(var_len, 5), min(rpt_len, 5))
     return '{}:{}:R:{}'.format(min(var_len, 5), var_type, min(rpt_size, 5))
