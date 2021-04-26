@@ -2,7 +2,7 @@ import re
 
 nt_conversion = {'A': 'T',
                  'C': 'C',
-                 'G': 'G',
+                 'G': 'C',
                  'T': 'T'}
 
 def simplify_repeat(rpt):
