@@ -111,7 +111,7 @@ def repeats_from_variant(variant, fasta, allele=1, min_flanks=20):
     if (len(ref) != 1 and len(alt) != 1) or ref[0] != alt[0]:
         var_type = 'Complex'
     if var_type is not None:
-        return var_type, rpt_type, rpt_len
+        return var_type, rpt_type, rpt_unit, rpt_len
     start = pos - 1
     stop = start + len(ref)
     flanks = min_flanks if min_flanks > abs(var_length) \
