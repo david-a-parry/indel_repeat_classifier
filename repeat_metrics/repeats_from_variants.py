@@ -86,7 +86,7 @@ def simplify_variant(variant, allele=1):
     return ref, alt, pos
 
 
-def repeats_from_variant(variant, fasta, allele=1, min_flanks=20):
+def repeats_from_variant(variant, fasta, allele=1, min_flanks=10):
     '''
     Find perfect repeats or microhomologies of indels. Assumes record comes
     from a normalized and left-aligned VCF.
@@ -101,11 +101,18 @@ def repeats_from_variant(variant, fasta, allele=1, min_flanks=20):
 
         allele: 1-based index of ALT allele to assess.
 
+        min_flanks:
+                Retrieve flanking sequence amounting to this number * variant
+                length. For example, for a 2 bp deletion, setting this value to
+                5 would result in retrieval and searching through 10 bp
+                sequence either side of the variant. This value therefore caps
+                the maximum repeat size that can be identified.
     '''
     var_type, rpt_type, rpt_unit, rpt_len = None, None, None, 0
     pos = variant.pos
-    ref, alt, pos = simplify_variant(variant)
+    ref, alt, pos = simplify_variant(variant, allele)
     var_length = len(alt) - len(ref)
+    flanks = abs(var_length) * min_flanks
     if var_length == 0:
         var_type = 'SNV' if len(ref) == 1 else 'MNV'
     if (len(ref) != 1 and len(alt) != 1) or ref[0] != alt[0]:
@@ -114,8 +121,6 @@ def repeats_from_variant(variant, fasta, allele=1, min_flanks=20):
         return var_type, rpt_type, rpt_unit, rpt_len
     start = pos - 1
     stop = start + len(ref)
-    flanks = min_flanks if min_flanks > abs(var_length) \
-        else abs(var_length) + min_flanks
     l_flank = flanks if start - flanks > 0 else start
     r_flank = flanks if stop + flanks < len(fasta[variant.chrom]) \
         else len(fasta[variant.chrom]) - stop
