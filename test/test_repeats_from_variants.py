@@ -25,28 +25,46 @@ def get_variants(path):
 
 def test_dels():
     ''' Identify deletions in perfect repeats '''
-    vcf2expected = {"del1.vcf": ('Del', None, None, 0),
-                    "del2.vcf": ('Del', 'Perfect', 'GA', 4),
-                    "del3.vcf": ('Del', 'Perfect', 'GA', 4),
-                    "del4.vcf": ('Del', 'Perfect', 'CTC', 12),
-                    "del5.vcf": ('Del', 'Perfect', 'CTC', 12),
-                    "del6.vcf": ('Del', 'Perfect', 'T', 2),
-                    "del7.vcf": ('Del', 'Perfect', 'CGATG', 15),
+    vcf2expected = {'del1.vcf': ('Del', None, None, 0, 'agctgagagtcgtctcctcc' +
+                                 'tcctcAAGGtcgtgcacagtctattgcacgtcg'),
+                    'del2.vcf': ('Del', 'Perfect', 'GA', 4,
+                                 'agctGAgagtcgtctcct'),
+                    'del3.vcf': ('Del', 'Perfect', 'GA', 4,
+                                 'agctGAGAgtcgtctcctcctcctcaaggtcg'),
+                    'del4.vcf': ('Del', 'Perfect', 'CTC', 12,
+                                 'agctgagagtcgtCTCctcctcctcaaggtcgtg'),
+                    'del5.vcf': ('Del', 'Perfect', 'CTC', 12,
+                                 'agctgagagtcgtCTCCTCCTCCTCaaggtcgtgcacagtct' +
+                                 'attgcacgtcgatgcgatgcgatgttgacagttagacacagt' +
+                                 'acacagtagagac'),
+                    'del6.vcf': ('Del', 'Perfect', 'T', 2, 'cagtctaTtgcacg'),
+                    'del7.vcf': ('Del', 'Perfect', 'CGATG', 15,
+                                 'agctgagagtcgtctcctcctcctcaaggtcgtgcacagtct' +
+                                 'attgcacgtCGATGCGATGcgatgttgacagttagacacagt' +
+                                 'acacagtagagacagtag'),
                     }
     fasta = Fasta(ref_fasta, as_raw=True, sequence_always_upper=True)
     for vcf, expected in vcf2expected.items():
         records = get_variants(os.path.join(var_path, vcf))
-        result = repeats_from_variant(records[0], fasta)
+        result = repeats_from_variant(records[0], fasta, min_flanks=6)
         assert_equal(result, expected)
 
 
 def test_ins():
     ''' Identify insertions in perfect repeats '''
-    vcf2expected = {"ins1.vcf": ('Ins', None, None, 0),
-                    "ins2.vcf": ('Ins', 'Perfect', 'GA', 4),
-                    "ins3.vcf": ('Ins', 'Perfect', 'CGATG', 15),
-                    "ins4.vcf": ('Ins', 'Perfect', 'AGG', 3),
-                    "ins5.vcf": ('Ins', 'Perfect', 'T', 2),
+    vcf2expected = {"ins1.vcf": ('Ins', None, None, 0, 'gagtcgtctcctcctcctca' +
+                                 'aTCggtcgtgcacagtctattgc'),
+                    "ins2.vcf": ('Ins', 'Perfect', 'GA', 4,
+                                 'agctGAgagagtcgtctcctcctcct'),
+                    "ins3.vcf": ('Ins', 'Perfect', 'CGATG', 15,
+                                 'agctgagagtcgtctcctcctcctcaaggtcgtgcacagtct' +
+                                 'attgcacgtCGATGcgatgcgatgcgatgttgacagttagac' +
+                                 'acagtacacagtagagacagta'),
+                    "ins4.vcf": ('Ins', 'Perfect', 'AGG', 3,
+                                 'agctgagagtcgtctcctcctcctcaAGGaggtcgtgcacag' +
+                                 'tctattgcacgtcgatg'),
+                    "ins5.vcf": ('Ins', 'Perfect', 'T', 2,
+                                 'tgcacagtctaTttgcacgtcg'),
                     }
     fasta = Fasta(ref_fasta, as_raw=True, sequence_always_upper=True)
     for vcf, expected in vcf2expected.items():
@@ -57,28 +75,44 @@ def test_ins():
 
 def test_microhomology():
     ''' Identify deletions with microhomology '''
-    size2del = {2: 'TC',
-                3: 'TTC',
-                4: 'TATC',
-                5: 'TAGTC',
-                7: 'TAGCCTC'}
+    size2del = {2: ('TC',
+                    'ccccccccccccccccaccaaTCtagcggcccccccccccccc'),
+                3: ('TTC',
+                    'c' * 26 + 'acccaTTCtagcgg' + 'c' * 24,
+                    'c' * 26 + 'acccaTTCttagcgg' + 'c' * 23),
+                4: ('TATC',
+                    'c' * 36 + 'acccaTATCttagcgg' + 'c' * 33,
+                    'c' * 36 + 'acccaTATCtaagcgg' + 'c' * 33,
+                    'c' * 36 + 'acccaTATCtatagcgg' + 'c' * 32),
+                5: ('TAGTC',
+                    'c' * 46 + 'acccaTAGTCttagcgg' + 'c' * 43,
+                    'c' * 46 + 'acccaTAGTCtaagcgg' + 'c' * 43,
+                    'c' * 46 + 'acccaTAGTCtagagcgg' + 'c' * 42,
+                    'c' * 46 + 'acccaTAGTCtagtagcgg' + 'c' * 41),
+                7: ('TAGCCTC',
+                    'c' * 50 + 'acccaTAGCCTCtagcctagcgg' + 'c' * 47)}
     for i in range(2, 6):
         for j in range(i - 1, i):
             base = "mh_{}_{}_f".format(i, j)
             mh_fa = os.path.join(fa_path, base + '.fasta')
             records = get_variants(os.path.join(var_path, base + '.vcf'))
             fasta = Fasta(mh_fa, as_raw=True, sequence_always_upper=True)
-            mh_seq = size2del[i][:j]
-            expected = ('Del', 'Imperfect', mh_seq, j)
+            mh_seq = size2del[i][0][:j]
+            seq_context = size2del[i][j]
+            expected = ('Del', 'Imperfect', mh_seq, j, seq_context)
             result = repeats_from_variant(records[0], fasta)
             assert_equal(result, expected)
-    for base, mh_seq, j in zip(["mh_2_1_r", "mh_7_6_f"],
-                               ['C', 'TAGCCT'],
-                               [1, 6]):
+    for base, mh_seq, j, sc in zip(["mh_2_1_r", "mh_7_6_f"],
+                                   ['C', 'TAGCCT'],
+                                   [1, 6],
+                                   ['c' * 17 + 'acaaCTcaagcgg' + 'c' * 13,
+                                    'c' * 50 + 'acccaTAGCCTCtagcctagcgg'
+                                    + 'c' * 47]
+                                   ):
         mh_fa = os.path.join(fa_path, base + '.fasta')
         records = get_variants(os.path.join(var_path, base + '.vcf'))
         fasta = Fasta(mh_fa, as_raw=True, sequence_always_upper=True)
-        expected = ('Del', 'Imperfect', mh_seq, j)
+        expected = ('Del', 'Imperfect', mh_seq, j, sc)
         result = repeats_from_variant(records[0], fasta)
         assert_equal(result, expected)
 
