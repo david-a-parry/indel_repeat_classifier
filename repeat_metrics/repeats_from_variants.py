@@ -180,7 +180,7 @@ def cosmic_ID83_classification(variant, fasta, allele=1):
             nt = nt_conversion[ref[1]]
         else:
             nt = nt_conversion[alt[1]]
-        return '1:{}:{}:{}'.format(rpt_res.variant_type, nt, rpt_size)
+        return '1:{}:{}:{}'.format(rpt_res.variant_type, nt, min(rpt_size, 5))
     if rpt_size == 0 and rpt_res.repeat_type == 'Perfect':
         #  if entire deletion does not repeat COSMIC considers it microhomology
         #  even in case of e.g. 'GAGA' deletion in a perfect 'GAGAGA' repeat
