@@ -4,7 +4,7 @@ import pysam
 from pyfaidx import Fasta
 from nose.tools import *
 _t_path = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
-_r_path = os.path.join(_t_path, os.pardir, 'repeat_metrics')
+_r_path = os.path.join(_t_path, os.pardir, 'indel_repeat_classifier')
 sys.path.insert(0, _r_path)
 from repeats_from_variants import repeats_from_variant
 from repeats_from_variants import cosmic_ID83_classification
