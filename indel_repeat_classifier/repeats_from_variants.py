@@ -188,7 +188,7 @@ def repeat_result_to_ID83(rpt_res, variant, fasta, allele):
     if rpt_size > 0 and rpt_res.variant_type == 'Del':
         rpt_size -= 1
     if var_len == 1:  # can only be perfect homopolymer repeat or no repeat
-        ref, alt, pos = simplify_variant(variant)
+        ref, alt, pos = simplify_variant(variant, allele=allele)
         if rpt_res.variant_type == 'Del':
             nt = nt_conversion[ref[1]]
         else:
