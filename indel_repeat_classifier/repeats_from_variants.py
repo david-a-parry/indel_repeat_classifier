@@ -133,7 +133,7 @@ def repeats_from_variant(variant, fasta, allele=1, min_flanks=10):
         return RepeatResult(var_type, rpt_type, rpt_unit, rpt_len, seq_ctxt)
     start = pos - 1
     stop = start + len(ref)
-    l_flank = flanks if start - flanks > 0 else start
+    l_flank = flanks - 1 if start - flanks > 0 else start
     r_flank = flanks if stop + flanks < len(fasta[variant.chrom]) \
         else len(fasta[variant.chrom]) - stop
     seq = fasta[variant.chrom][start - l_flank:stop + r_flank]

@@ -37,7 +37,7 @@ def test_dels():
                                  'agctgagagtcgtCTCCTCCTCCTCaaggtcgtgcacagtct' +
                                  'attgcacgtcgatgcgatgcgatgttgacagttagacacagt' +
                                  'acacagtagagac'),
-                    'del6.vcf': ('Del', 'Perfect', 'T', 2, 'cagtctaTtgcacg'),
+                    'del6.vcf': ('Del', 'Perfect', 'T', 2, 'agtctaTtgcacg'),
                     'del7.vcf': ('Del', 'Perfect', 'CGATG', 15,
                                  'agctgagagtcgtctcctcctcctcaaggtcgtgcacagtct' +
                                  'attgcacgtCGATGCGATGcgatgttgacagttagacacagt' +
@@ -52,7 +52,7 @@ def test_dels():
 
 def test_ins():
     ''' Identify insertions in perfect repeats '''
-    vcf2expected = {"ins1.vcf": ('Ins', None, None, 0, 'gagtcgtctcctcctcctca' +
+    vcf2expected = {"ins1.vcf": ('Ins', None, None, 0, 'agtcgtctcctcctcctca' +
                                  'aTCggtcgtgcacagtctattgc'),
                     "ins2.vcf": ('Ins', 'Perfect', 'GA', 4,
                                  'agctGAgagagtcgtctcctcctcct'),
@@ -64,7 +64,7 @@ def test_ins():
                                  'agctgagagtcgtctcctcctcctcaAGGaggtcgtgcacag' +
                                  'tctattgcacgtcgatg'),
                     "ins5.vcf": ('Ins', 'Perfect', 'T', 2,
-                                 'tgcacagtctaTttgcacgtcg'),
+                                 'gcacagtctaTttgcacgtcg'),
                     }
     fasta = Fasta(ref_fasta, as_raw=True, sequence_always_upper=True)
     for vcf, expected in vcf2expected.items():
@@ -76,19 +76,19 @@ def test_ins():
 def test_microhomology():
     ''' Identify deletions with microhomology '''
     size2del = {2: ('TC',
-                    'ccccccccccccccccaccaaTCtagcggcccccccccccccc'),
+                    'cccccccccccccccaccaaTCtagcggcccccccccccccc'),
                 3: ('TTC',
-                    'c' * 26 + 'acccaTTCtagcgg' + 'c' * 24,
-                    'c' * 26 + 'acccaTTCttagcgg' + 'c' * 23),
+                    'c' * 25 + 'acccaTTCtagcgg' + 'c' * 24,
+                    'c' * 25 + 'acccaTTCttagcgg' + 'c' * 23),
                 4: ('TATC',
-                    'c' * 36 + 'acccaTATCttagcgg' + 'c' * 33,
-                    'c' * 36 + 'acccaTATCtaagcgg' + 'c' * 33,
-                    'c' * 36 + 'acccaTATCtatagcgg' + 'c' * 32),
+                    'c' * 35 + 'acccaTATCttagcgg' + 'c' * 33,
+                    'c' * 35 + 'acccaTATCtaagcgg' + 'c' * 33,
+                    'c' * 35 + 'acccaTATCtatagcgg' + 'c' * 32),
                 5: ('TAGTC',
-                    'c' * 46 + 'acccaTAGTCttagcgg' + 'c' * 43,
-                    'c' * 46 + 'acccaTAGTCtaagcgg' + 'c' * 43,
-                    'c' * 46 + 'acccaTAGTCtagagcgg' + 'c' * 42,
-                    'c' * 46 + 'acccaTAGTCtagtagcgg' + 'c' * 41),
+                    'c' * 45 + 'acccaTAGTCttagcgg' + 'c' * 43,
+                    'c' * 45 + 'acccaTAGTCtaagcgg' + 'c' * 43,
+                    'c' * 45 + 'acccaTAGTCtagagcgg' + 'c' * 42,
+                    'c' * 45 + 'acccaTAGTCtagtagcgg' + 'c' * 41),
                 7: ('TAGCCTC',
                     'c' * 50 + 'acccaTAGCCTCtagcctagcgg' + 'c' * 47)}
     for i in range(2, 6):
@@ -105,7 +105,7 @@ def test_microhomology():
     for base, mh_seq, j, sc in zip(["mh_2_1_r", "mh_7_6_f"],
                                    ['C', 'TAGCCT'],
                                    [1, 6],
-                                   ['c' * 17 + 'acaaCTcaagcgg' + 'c' * 13,
+                                   ['c' * 16 + 'acaaCTcaagcgg' + 'c' * 13,
                                     'c' * 50 + 'acccaTAGCCTCtagcctagcgg'
                                     + 'c' * 47]
                                    ):
