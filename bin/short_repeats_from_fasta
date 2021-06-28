@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+import argparse
+from indel_repeat_classifier.version import __version__ as rpt_classifer_version
+from indel_repeat_classifier.repeats_from_sequence import find_repeats_in_fasta
+
+
+def get_options():
+    parser = argparse.ArgumentParser(
+        description='''Find and output repeats from fasta file''')
+    parser.add_argument("fasta", help='Input fasta file')
+    parser.add_argument(
+        "output_prefix",
+        help='''Prefix for output files. Each file will be named
+                        <prefix>_<rpt_size>.csv.gz If using a directory name for
+                        your prefix ensure that the directory already
+                        exists!''')
+    parser.add_argument(
+        "-r",
+        "--repeat_lengths",
+        nargs='+',
+        type=int,
+        metavar='UNIT_LENGTH',
+        default=[2, 3, 4, 5],
+        help='''Search for repeats of these unit lengths. Default is to search
+        for repeat units between 2 and 5 bp long.''')
+    parser.add_argument(
+        "-f",
+        "--flanks",
+        default=10,
+        type=int,
+        help='''Output this many bp of sequence either side of repeats in
+        output file.''')
+    parser.add_argument("-s",
+                        "--seqnames",
+                        nargs='+',
+                        metavar='SEQ',
+                        help='Only process these sequences in the fasta file')
+    parser.add_argument("-b",
+                        "--blacklist",
+                        nargs='+',
+                        metavar='SEQ',
+                        help='Ignore these sequences from the fasta file.')
+    parser.add_argument(
+        "--progress_interval",
+        metavar='N',
+        type=int,
+        default=1_000_000,
+        help='Report progress every N records. Default=1000000')
+    parser.add_argument("--version",
+                        action='version',
+                        version=rpt_classifer_version,
+                        help='Print version and exit.')
+    return parser
+
+
+def find_repeats(fasta, output_prefix, repeat_lengths, flanks, seqnames,
+                 blacklist, progress_interval):
+    for rpt_len in repeat_lengths:
+        csv_out = "{}_{}.csv.gz".format(output_prefix, rpt_len)
+        find_repeats_in_fasta(fasta,
+                              out_path=csv_out,
+                              rpt_unit_length=rpt_len,
+                              flanks=flanks,
+                              seqnames=seqnames,
+                              blacklist=blacklist,
+                              progress_interval=progress_interval)
+
+
+if __name__ == '__main__':
+    parser = get_options()
+    args = parser.parse_args()
+    find_repeats(**vars(args))

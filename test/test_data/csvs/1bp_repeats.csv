@@ -1,0 +1,6 @@
+seqname,start,end,rpt_type,rpt_length,rpt_unit,collapsed_seq,flank_seq
+1bp_rpts,16,19,Perfect,3,C,tatcaCCtatta,tatcaCCCtatta
+1bp_rpts,21,23,Perfect,2,T,ccctaTTaacct,ccctaTTaacct
+1bp_rpts,23,25,Perfect,2,A,ctattAAcctct,ctattAAcctct
+1bp_rpts,25,27,Perfect,2,C,attaaCCtctca,attaaCCtctca
+1bp_rpts,31,35,Perfect,4,A,ctctcAA,ctctcAAAA
