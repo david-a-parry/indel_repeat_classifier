@@ -1,0 +1,92 @@
+---- = perfect
+^^^  = imperfect
+
+
+1bp rpts:
+0         10        20        30      
+01234567890123456789012345678901234
+                ---  --  --    ----
+GATCACACATCTATCACCCTATTAACCTCTCAAAA
+                       -- 
+seqname,start,end,rpt_type,rpt_length,rpt_unit,collapsed_seq,flank_seq
+1bp_rpts,16,19,Perfect,3,tatcaCCCtatta,tatcaCCtatta
+1bp_rpts,21,23,Perfect,2,ccctaTTaacct,ccctaTTaacct
+1bp_rpts,23,25,Perfect,2,ctattAAcctct,ctattAAcctct
+1bp_rpts,25,27,Perfect,2,attaaCCtctca,attaaCCtctca
+1bp_rpts,31,35,Perfect,4,ctctcAAAA,ctctcAA
+
+
+
+
+2 bp rpts:
+
+0         10        20        30        40  
+01234567890123456789012345678901234567890123
+   ------^^^  ^^^  ^^^                  ----
+GATCACACATCTATCACCCTATTAACCTCTCCATGCATTCAAAA
+           ^^^  ^^^       -----             
+
+seqname,start,end,rpt_type,rpt_length,rpt_unit,collapsed_seq,flank_seq
+2bp_rpts,3,9,Perfect,6,CA,gatCACAggtct,gatCACACAtctat
+2bp_rpts,9,12,Imperfect,3,TC,acacaTCTatcac,acacaTCTatcac
+2bp_rpts,11,14,Imperfect,3,TA,acatcTATcaccc,acatcTATcaccc
+2bp_rpts,14,17,Imperfect,3,CA,tctatCACcctat,tctatCACcctat
+2bp_rpts,16,19,Imperfect,3,CC,tatcaCCCtatta,tatcaCCCtatta
+2bp_rpts,19,22,Imperfect,3,TA,cacccTATtaacc,cacccTATtaacc
+2bp_rpts,26,31,Perfect,5,CT,ttaacCTCTCcatgc,ttaacCTCTCcatgc
+2bp_rpts,40,44,Perfect,4,AA,cattcAAAA,cattcAAAA
+
+
+
+3 bp rpts:
+
+0         10        20        
+012345678901234567890123456789
+    ^^^^      ^^^^  ---------
+CCCACGCCTATTATTTATCTCAGCAGCAGT
+ ^^^^   -------
+
+seqname,start,end,rpt_type,rpt_length,rpt_unit,collapsed_seq,flank_seq
+3bp_rpts,1,5,Imperfect,4,CCA,cCCACgccta,cCCACgccta
+3bp_rpts,4,8,Imperfect,4,CGC,cccaCGCCtatta,cccaCGCCtatta
+3bp_rpts,8,15,Perfect,7,TAT,acgccTATTATTtatct,acgccTATTATTtatct
+3bp_rpts,14,18,Imperfect,4,TTA,attatTTATctcag,attatTTATctcag
+3bp_rpts,20,29,Perfect,9,CAG,tatctCAGCAGt,tatctCAGCAGCAGt
+
+
+
+4 bp rpts:
+
+0         10        20        
+012345678901234567890123456789
+     ^^^^^^^  --------
+ACCCCCACGCACTATTATTTATCGCACCT
+ ^^^^^                ^^^^^
+   ^^^^^
+
+seqname,start,end,rpt_type,rpt_length,rpt_unit,collapsed_seq,flank_seq
+4bp_rpts,1,6,Imperfect,5,CCCC,aCCCCCacgca,aCCCCCacgca
+4bp_rpts,3,8,Imperfect,5,CCCA,accCCCACgcact,accCCCACgcact
+4bp_rpts,5,12,Imperfect,7,CACG,accccCACGCACtatta,accccCACGCACtatta
+4bp_rpts,6,12,Imperfect,6,ACGC,cccccACGCACtatta,cccccACGCACtatta
+4bp_rpts,7,12,Imperfect,5,CGCA,ccccaCGCACtatta,ccccaCGCACtatta
+4bp_rpts,14,22,Perfect,8,TTAT,cactaTTATTTATcgcac,cactaTTATTTATcgcac
+4bp_rpts,22,27,Imperfect,5,CGCA,tttatCGCACct,tttatCGCACct
+
+
+5 bp rpts:
+
+0         10        20        30     
+0123456789012345678901234567890123456
+
+        ---------------   ^^^^^^    
+AAAACGCTTAGCCTAGCCTAGCCGTACACCCCCACG
+      ^^^^^^         ^^^^^^       
+     ^^^^^^^          
+
+seqname,start,end,rpt_type,rpt_length,rpt_unit,collapsed_seq,flank_seq
+5bp_rpts,5,12,Imperfect,7,GCTTA,aaaacGCTTAGCctagc,aaaacGCTTAGCctagc
+5bp_rpts,6,12,Imperfect,6,CTTAG,aaacgCTTAGCctagc,aaacgCTTAGCctagc
+5bp_rpts,8,23,Perfect,15,TAGCC,acgctTAGCCTAGCCgtaca,acgctTAGCCTAGCCTAGCCgtaca
+5bp_rpts,21,27,Imperfect,6,CCGTA,cctagCCGTACacccc,cctagCCGTACacccc
+5bp_rpts,26,32,Imperfect,6,CACCC,ccgtaCACCCCcacg,ccgtaCACCCCcacg
