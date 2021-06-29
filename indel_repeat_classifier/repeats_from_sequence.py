@@ -96,8 +96,6 @@ def find_repeats_in_string(seq,
                                 progress_interval)
             else:
                 # check for microhomology
-                #   NNNNNCTCGCGCGC
-                #   NNNNNCTGCTCTCT
                 mh_len = 0
                 mh = None
                 for j in range(1, rpt_unit_length):
@@ -124,6 +122,7 @@ def find_repeats_in_string(seq,
                         'collapsed_seq': flank_seq,
                         'flank_seq': flank_seq
                     })
+                    repeats_processed += 1
             prev_rpt = None
             rpt_start = None
             rpt_end = None
@@ -131,6 +130,7 @@ def find_repeats_in_string(seq,
     if prev_rpt is not None:
         repeats_processed += output_repeat(writer, seq, seqname, prev_rpt,
                                            rpt_start, rpt_end, flanks)
+    LOGGER.info("Finished parsing {:,} repeats".format(repeats_processed))
     return repeats_processed
 
 
