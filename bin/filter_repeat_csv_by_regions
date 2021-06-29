@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+import argparse
+import csv
+import gzip
+import logging
+import sys
+from region_finder.bed_parser import BedParser
+from region_finder.region_finder import RegionFinder
+
+LOGGER = logging.getLogger("Filter by Region")
+LOGGER.setLevel(logging.INFO)
+formatter = logging.Formatter(
+    '[%(asctime)s] %(name)s - %(levelname)s - %(message)s')
+ch = logging.StreamHandler()
+ch.setLevel(LOGGER.level)
+ch.setFormatter(formatter)
+LOGGER.addHandler(ch)
+
+
+def get_options():
+    parser = argparse.ArgumentParser(
+        description='''Filter CSV output of short_repeats_from_fasta using a BED
+                       file''')
+    parser.add_argument("repeats", help='Input CSV file of repeats')
+    parser.add_argument(
+        "bed",
+        help='''BED format file of regions. Rows from CSV will be written to
+                output only if they lie within these regions.''')
+    parser.add_argument("-o",
+                        "--output",
+                        help='Output filename. Defaults to STDOUT.')
+    parser.add_argument("-p",
+                        "--progress_interval",
+                        type=int,
+                        metavar='N',
+                        default=1_000_000,
+                        help='Report progress every N rows.')
+    return parser
+
+
+def regions_contain_row(region_finder, row):
+    start = int(row['start'])
+    end = int(row['end'])
+    for intvl in region_finder.fetch(row['seqname'], start, end):
+        # want row target to be fully encompassed by bed region
+        if intvl.end >= end and intvl.start <= start:
+            return True
+    return False
+
+
+def main(repeats, bed, output=None, progress_interval=1_000_000):
+    o_func = gzip.open if repeats.endswith('.gz') else open
+    if output is None:
+        out_fh = sys.stdout
+    elif output.endswith('.gz'):
+        out_fh = gzip.open(output, 'rt')
+    else:
+        out_fh = open(output, 'rt')
+    bedparser = BedParser(bed)
+    region_finder = RegionFinder(bedparser)
+    with o_func(repeats, 'rt') as fh:
+        csvreader = csv.DictReader(fh)
+        csvwriter = csv.DictWriter(out_fh, fieldnames=csvreader.fieldnames)
+        n, w = 0, 0
+        for row in csvreader:
+            n += 1
+            if regions_contain_row(region_finder, row):
+                csvwriter.writerow(row)
+                w += 1
+            if n % progress_interval == 0:
+                LOGGER.info("{:,} regions processed, {:,} written".format(
+                    n, w))
+    if output is not None:
+        out_fh.close()
+
+
+if __name__ == '__main__':
+    args = get_options().parse_args()
+    main(**vars(args))
