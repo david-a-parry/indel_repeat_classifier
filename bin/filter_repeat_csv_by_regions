@@ -53,9 +53,9 @@ def main(repeats, bed, output=None, progress_interval=1_000_000):
     if output is None:
         out_fh = sys.stdout
     elif output.endswith('.gz'):
-        out_fh = gzip.open(output, 'rt')
+        out_fh = gzip.open(output, 'wt')
     else:
-        out_fh = open(output, 'rt')
+        out_fh = open(output, 'wt')
     bedparser = BedParser(bed)
     region_finder = RegionFinder(bedparser)
     with o_func(repeats, 'rt') as fh:
