@@ -1,13 +1,10 @@
 import re
 from collections import namedtuple
 
-nt_conversion = {'A': 'T',
-                 'C': 'C',
-                 'G': 'C',
-                 'T': 'T'}
+nt_conversion = {'A': 'T', 'C': 'C', 'G': 'C', 'T': 'T'}
 
-RepeatResult = namedtuple("RepeatResult",
-                          '''variant_type
+RepeatResult = namedtuple(
+    "RepeatResult", '''variant_type
                              repeat_type
                              repeat_unit
                              repeat_length
@@ -22,9 +19,9 @@ def simplify_repeat(rpt):
          if regex found 'TCTC' repeat unit, represent as 'TC'
     '''
     r_len = len(rpt)
-    for i in range(1, int(r_len/2) + 1):
+    for i in range(1, int(r_len / 2) + 1):
         if r_len % i == 0:
-            if rpt[:i] * int(r_len/i) == rpt:
+            if rpt[:i] * int(r_len / i) == rpt:
                 return rpt[:i]
     return rpt
 
@@ -56,7 +53,7 @@ def find_microhomology(indel, seq, p):
     i_len = len(indel)
     j = p + i_len
     for i in range(1, i_len):
-        if seq[j:j+i] == indel[:i]:
+        if seq[j:j + i] == indel[:i]:
             rpt_len = i
             mh = indel[:i]
         else:
@@ -66,12 +63,14 @@ def find_microhomology(indel, seq, p):
     p = len(seq) - p - i_len
     j = p + i_len
     for i in range(1, i_len):  # check reverse orientation
-        if seq[j:j+i] == indel[:i]:
+        if seq[j:j + i] == indel[:i]:
             if i > rpt_len:
                 rpt_len = i
                 mh = indel[:i]
         else:
             break
+    if rpt_len:
+        rpt_len += i_len
     return rpt_len, mh
 
 
@@ -103,7 +102,7 @@ def repeats_from_variant(variant, fasta, allele=1, min_flanks=10):
     Returns a RepeatResult namedtuple with features 'variant_type',
     'repeat_type', 'repeat_unit', 'repeat_length' and 'sequence'. The
     repeat_length attribute gives either length of repeat or length of
-    microhomology in bp. The sequence attribute gives flanking sequence in
+    deletion plus microhomology in bp. The sequence attribute gives flanking sequence in
     lowercase and inserted/deleted bases in uppercase.
 
     Args:
@@ -181,10 +180,9 @@ def repeat_result_to_ID83(rpt_res, variant, fasta, allele):
     rpt_size = 0
     var_len = abs(len(variant.ref) - len(variant.alleles[allele]))
     if rpt_res.repeat_type == 'Imperfect':
-        return '{}:{}:M:{}'.format(min(var_len, 5),
-                                   rpt_res.variant_type,
-                                   min(rpt_res.repeat_length, 5))
-    rpt_size = int(rpt_res.repeat_length/var_len)
+        return '{}:{}:M:{}'.format(min(var_len, 5), rpt_res.variant_type,
+                                   min(rpt_res.repeat_length - var_len, 5))
+    rpt_size = int(rpt_res.repeat_length / var_len)
     if rpt_size > 0 and rpt_res.variant_type == 'Del':
         rpt_size -= 1
     if var_len == 1:  # can only be perfect homopolymer repeat or no repeat
@@ -204,9 +202,8 @@ def repeat_result_to_ID83(rpt_res, variant, fasta, allele):
         rpt_len, _ = find_microhomology(ref[1:], seq, var_len)
         if rpt_len:
             return '{}:Del:M:{}'.format(min(var_len, 5),
-                                        min(rpt_len, 5))
-    return '{}:{}:R:{}'.format(min(var_len, 5),
-                               rpt_res.variant_type,
+                                        min(rpt_len - var_len, 5))
+    return '{}:{}:R:{}'.format(min(var_len, 5), rpt_res.variant_type,
                                min(rpt_size, 5))
 
 

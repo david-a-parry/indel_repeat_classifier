@@ -95,11 +95,11 @@ def test_microhomology():
             fasta = Fasta(mh_fa, as_raw=True, sequence_always_upper=True)
             mh_seq = size2del[i][0][:j]
             seq_context = size2del[i][j]
-            expected = ('Del', 'Imperfect', mh_seq, j, seq_context)
+            expected = ('Del', 'Imperfect', mh_seq, i + j, seq_context)
             result = repeats_from_variant(records[0], fasta)
             assert result == expected
     for base, mh_seq, j, sc in zip(
-        ["mh_2_1_r", "mh_7_6_f"], ['C', 'TAGCCT'], [1, 6], [
+        ["mh_2_1_r", "mh_7_6_f"], ['C', 'TAGCCT'], [3, 13], [
             'c' * 16 + 'acaaCTcaagcgg' + 'c' * 13,
             'c' * 50 + 'acccaTAGCCTCtagcctagcgg' + 'c' * 47
         ]):
