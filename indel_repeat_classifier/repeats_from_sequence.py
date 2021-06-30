@@ -121,6 +121,8 @@ def find_repeats_in_string(seq,
                         'flank_seq': flank_seq
                     })
                     repeats_processed += 1
+                    update_progress(repeats_processed, seqname, i,
+                                    progress_interval)
             prev_rpt = None
             rpt_start = None
             rpt_end = None
