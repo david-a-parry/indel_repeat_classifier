@@ -32,26 +32,24 @@ def output_repeat(writer, seq, seqname, rpt_unit, start, end, flanks=10):
     flank_seq = seq[f_start:start].lower() + \
         seq[start:end].upper() + \
         seq[end:end + flanks].lower()
-    if 'n' not in flank_seq:
-        rpt_length = end - start
-        clps_len = 2 * rpt_unit_length
-        if end_pad:  # we added partial repeat to end
-            clps_len += end_pad
-        clps_seq = seq[f_start:start].lower() + \
-                   seq[start:start + clps_len].upper() + \
-                   seq[end:end + flanks].lower()
-        writer.writerow({
-            'seqname': seqname,
-            'start': start,
-            'end': end,
-            'rpt_type': 'Perfect',
-            'rpt_length': rpt_length,
-            'rpt_unit': rpt_unit,
-            'collapsed_seq': clps_seq,
-            'flank_seq': flank_seq
-        })
-        return 1
-    return 0
+    rpt_length = end - start
+    clps_len = 2 * rpt_unit_length
+    if end_pad:  # we added partial repeat to end
+        clps_len += end_pad
+    clps_seq = seq[f_start:start].lower() + \
+                seq[start:start + clps_len].upper() + \
+                seq[end:end + flanks].lower()
+    writer.writerow({
+        'seqname': seqname,
+        'start': start,
+        'end': end,
+        'rpt_type': 'Perfect',
+        'rpt_length': rpt_length,
+        'rpt_unit': rpt_unit,
+        'collapsed_seq': clps_seq,
+        'flank_seq': flank_seq
+    })
+    return 1
 
 
 def update_progress(n, seqname, pos, progress_interval):
