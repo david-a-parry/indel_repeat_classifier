@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import argparse
-from indel_repeat_classifier.version import __version__ as rpt_classifer_version
+from indel_repeat_classifier.version import __version__ as rpt_classifer_ver
 from indel_repeat_classifier.repeats_from_sequence import find_repeats_in_fasta
 
 
@@ -11,9 +11,8 @@ def get_options():
     parser.add_argument(
         "output_prefix",
         help='''Prefix for output files. Each file will be named
-                        <prefix>_<rpt_size>.csv.gz If using a directory name for
-                        your prefix ensure that the directory already
-                        exists!''')
+        <prefix>_<rpt_size>.csv.gz If using a directory name for your prefix
+        ensure that the directory already exists!''')
     parser.add_argument(
         "-r",
         "--repeat_lengths",
@@ -48,7 +47,7 @@ def get_options():
         help='Report progress every N records. Default=1000000')
     parser.add_argument("--version",
                         action='version',
-                        version=rpt_classifer_version,
+                        version=rpt_classifer_ver,
                         help='Print version and exit.')
     return parser
 
