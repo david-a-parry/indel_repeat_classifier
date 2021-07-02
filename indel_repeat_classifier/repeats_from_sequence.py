@@ -36,9 +36,8 @@ def output_repeat(writer, seq, seqname, rpt_unit, start, end, flanks=10):
     clps_len = 2 * rpt_unit_length
     if end_pad:  # we added partial repeat to end
         clps_len += end_pad
-    clps_seq = seq[f_start:start].lower() + \
-                seq[start:start + clps_len].upper() + \
-                seq[end:end + flanks].lower()
+    clps_seq = seq[f_start:start].lower() + seq[start:start + clps_len].upper(
+    ) + seq[end:end + flanks].lower()
     writer.writerow({
         'seqname': seqname,
         'start': start,
@@ -62,11 +61,12 @@ def find_repeats_in_string(seq,
                            seqname,
                            rpt_unit_length,
                            writer,
-                           repeats_processed=0,
                            flanks=10,
                            progress_interval=1_000_000):
+    repeats_processed = 0
     window = rpt_unit_length * 2
     prev_rpt = None
+    rpt_start = None
     i = 0
     while i < len(seq) - rpt_unit_length:
         this_window = seq[i:i + window]
@@ -192,5 +192,5 @@ def find_repeats_in_fasta(fasta_path,
                                         rpt_unit_length=rpt_unit_length,
                                         flanks=flanks,
                                         writer=writer,
-                                        repeats_processed=n,
                                         progress_interval=progress_interval)
+    return n

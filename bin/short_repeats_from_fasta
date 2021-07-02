@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 import argparse
+import logging
 from indel_repeat_classifier.version import __version__ as rpt_classifer_ver
 from indel_repeat_classifier.repeats_from_sequence import find_repeats_in_fasta
+
+LOGGER = logging.getLogger("RepeatFinder")
 
 
 def get_options():
@@ -56,13 +59,15 @@ def find_repeats(fasta, output_prefix, repeat_lengths, flanks, seqnames,
                  blacklist, progress_interval):
     for rpt_len in repeat_lengths:
         csv_out = "{}_{}.csv.gz".format(output_prefix, rpt_len)
-        find_repeats_in_fasta(fasta,
-                              out_path=csv_out,
-                              rpt_unit_length=rpt_len,
-                              flanks=flanks,
-                              seqnames=seqnames,
-                              blacklist=blacklist,
-                              progress_interval=progress_interval)
+        n = find_repeats_in_fasta(fasta,
+                                  out_path=csv_out,
+                                  rpt_unit_length=rpt_len,
+                                  flanks=flanks,
+                                  seqnames=seqnames,
+                                  blacklist=blacklist,
+                                  progress_interval=progress_interval)
+        LOGGER.info("Found {:,} {:,} bp perfect/partial repeats".format(
+            n, rpt_len))
 
 
 if __name__ == '__main__':
