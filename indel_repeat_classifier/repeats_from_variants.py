@@ -101,8 +101,8 @@ def repeats_from_variant(variant, fasta, allele=1, min_flanks=10):
 
     Returns a RepeatResult namedtuple with features 'variant_type',
     'repeat_type', 'repeat_unit', 'repeat_length' and 'sequence'. The
-    repeat_length attribute gives either length of repeat or length of
-    deletion plus microhomology in bp. The sequence attribute gives flanking sequence in
+    repeat_length attribute gives either length of repeat or length of deletion
+    plus microhomology in bp. The sequence attribute gives flanking sequence in
     lowercase and inserted/deleted bases in uppercase.
 
     Args:
