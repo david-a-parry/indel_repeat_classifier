@@ -11,6 +11,13 @@ from indel_repeat_classifier.repeats_from_variants import repeats_from_variant
 from indel_repeat_classifier.repeats_from_variants import repeat_result_to_ID83
 
 LOGGER = logging.getLogger("Indel Repeat Classifier")
+LOGGER.setLevel(logging.INFO)
+formatter = logging.Formatter(
+    '[%(asctime)s] %(name)s - %(levelname)s - %(message)s')
+ch = logging.StreamHandler()
+ch.setLevel(LOGGER.level)
+ch.setFormatter(formatter)
+LOGGER.addHandler(ch)
 
 v_attrs = ('chrom', 'pos', 'ref')
 res_attrs = ('variant_type', 'repeat_type', 'repeat_unit', 'repeat_length',
@@ -56,7 +63,11 @@ def get_options():
                         metavar='N',
                         type=int,
                         default=10_000,
-                        help='Report progress every N records. Default=10000')
+                        help='Report progress every N alleles. Default=10000')
+    parser.add_argument("-q",
+                        "--quiet",
+                        action='store_true',
+                        help='Do not output progress information.')
     parser.add_argument("--version",
                         action='version',
                         version=rpt_classifer_ver,
@@ -78,7 +89,8 @@ def repeats_from_vcf(vcf,
                      flanks,
                      progress_interval,
                      classify_allele=False,
-                     output=None):
+                     output=None,
+                     quiet=False):
     ref_fasta = Fasta(fasta, sequence_always_upper=True, as_raw=True)
     if output is not None:
         o_func = gzip.open if output.endswith(".gz") else open
@@ -87,6 +99,8 @@ def repeats_from_vcf(vcf,
         fh = sys.stdout
     if not classify_allele:
         csv_fields.append('cosmic_repeat_type')
+    if quiet:
+        LOGGER.setLevel(logging.WARNING)
     csvwriter = csv.DictWriter(fh, fieldnames=csv_fields)
     csvwriter.writeheader()
     with pysam.VariantFile(vcf) as variants:
@@ -94,12 +108,16 @@ def repeats_from_vcf(vcf,
         for record in variants:
             n_alleles = len(record.alleles)
             for i in range(1, n_alleles):
-                n += 1
                 row = dict()
                 rpt_res = repeats_from_variant(variant=record,
                                                fasta=ref_fasta,
                                                allele=i,
                                                min_flanks=flanks)
+                n += 1
+                if n % progress_interval == 0:
+                    LOGGER.info(
+                        "Processed {:,} alleles. ".format(n) +
+                        "At position {}:{}".format(record.chrom, record.pos))
                 if (rpt_res.variant_type != 'Del'
                         and rpt_res.variant_type != 'Ins'):
                     continue
@@ -128,11 +146,8 @@ def repeats_from_vcf(vcf,
                 else:
                     row['cosmic_repeat_type'] = cosmic_repeat_type
                 csvwriter.writerow(row)
-                if n % progress_interval == 0:
-                    LOGGER.info(
-                        "Processed {:,} variants. ".format(n) +
-                        "At position {}:{}".format(record.chrom, record.pos))
     fh.close()
+    LOGGER.info("Finished processing {:,} alleles.".format(n))
 
 
 if __name__ == '__main__':
