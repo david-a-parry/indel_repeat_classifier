@@ -26,7 +26,7 @@ def test_dels():
     ''' Identify deletions in perfect repeats '''
     vcf2expected = {
         'del1.vcf':
-        ('Del', None, None, 0,
+        ('Del', "No repeat", None, 0,
          'agctgagagtcgtctcctcc' + 'tcctcAAGGtcgtgcacagtctattgcacgtcg'),
         'del2.vcf': ('Del', 'Perfect', 'GA', 4, 'agctGAgagtcgtctcct'),
         'del3.vcf':
@@ -53,7 +53,7 @@ def test_dels():
 def test_ins():
     ''' Identify insertions in perfect repeats '''
     vcf2expected = {
-        "ins1.vcf": ('Ins', None, None, 0,
+        "ins1.vcf": ('Ins', "No repeat", None, 0,
                      'agtcgtctcctcctcctca' + 'aTCggtcgtgcacagtctattgc'),
         "ins2.vcf": ('Ins', 'Perfect', 'GA', 4, 'agctGAgagagtcgtctcctcctcct'),
         "ins3.vcf": ('Ins', 'Perfect', 'CGATG', 15,

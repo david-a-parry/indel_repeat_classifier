@@ -4,11 +4,8 @@ from collections import namedtuple
 nt_conversion = {'A': 'T', 'C': 'C', 'G': 'C', 'T': 'T'}
 
 RepeatResult = namedtuple(
-    "RepeatResult", '''variant_type
-                             repeat_type
-                             repeat_unit
-                             repeat_length
-                             sequence''')
+    "RepeatResult",
+    'variant_type repeat_type repeat_unit repeat_length sequence')
 
 
 def simplify_repeat(rpt):
@@ -119,7 +116,8 @@ def repeats_from_variant(variant, fasta, allele=1, min_flanks=10):
                 sequence either side of the variant. This value therefore caps
                 the maximum repeat size that can be identified.
     '''
-    var_type, rpt_type, rpt_unit, rpt_len, seq_ctxt = None, None, None, 0, ""
+    var_type, rpt_type, rpt_unit, rpt_len, seq_ctxt = (None, "No repeat", None,
+                                                       0, "")
     pos = variant.pos
     ref, alt, pos = simplify_variant(variant, allele)
     var_length = len(alt) - len(ref)
