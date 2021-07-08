@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+import argparse
+import csv
+import gzip
+import logging
+import pysam
+import sys
+from pyfaidx import Fasta
+from indel_repeat_classifier.version import __version__ as rpt_classifer_ver
+from indel_repeat_classifier.repeats_from_variants import repeats_from_variant
+from indel_repeat_classifier.repeats_from_variants import repeat_result_to_ID83
+
+LOGGER = logging.getLogger("Indel Repeat Classifier")
+
+v_attrs = ('chrom', 'pos', 'ref')
+res_attrs = ('variant_type', 'repeat_type', 'repeat_unit', 'repeat_length',
+             'sequence')
+other_cols = ('alt', 'n_alleles', 'variant_length', 'cosmic_class')
+csv_fields = list(v_attrs + other_cols + res_attrs)
+
+
+def get_options():
+    parser = argparse.ArgumentParser(
+        description='''Classify indels from a based on repeat context''')
+    parser.add_argument(
+        "vcf",
+        help='''Input vcf file containing indels. SNVs, MNVs and complex
+        variants will be ignored. Variants MUST be left-aligned and normalized
+        (e.g. using `bcftools norm`).''')
+    parser.add_argument("fasta",
+                        help='Fasta file matching genome of vcf input.')
+    parser.add_argument("-o",
+                        "--output",
+                        help='''Output CSV filename. Defaults to stdout.''')
+    parser.add_argument(
+        "-f",
+        "--flanks",
+        default=10,
+        type=int,
+        metavar='N',
+        help='''Retrieve and search <indel_length> * N bp of sequence either
+        side of indels. This value therefore limits the maximum length of repeat
+        that can be identified.''')
+    parser.add_argument(
+        "-c",
+        "--classify_allele",
+        action='store_true',
+        help='''Classify repeat type based on the insertion/deletion allele. For
+        example, a 4bp deletion of 'AGAG' in a 6bp repeat of 'AGAGAG' is by
+        default given the class of "Perfect" repeat as it lies within a perfect
+        'AG' repeat. However, if you prefer the SigProfiler interpretation where
+        this would be considered microhomology rather than a deletion of a
+        perfect repeat (e.g. "4:Del:M:2") use this flag to classify as a
+        deletion at an "Imperfect" repeat.''')
+    parser.add_argument("--progress_interval",
+                        metavar='N',
+                        type=int,
+                        default=10_000,
+                        help='Report progress every N records. Default=10000')
+    parser.add_argument("--version",
+                        action='version',
+                        version=rpt_classifer_ver,
+                        help='Print version and exit.')
+    return parser
+
+
+def repeat_type_from_cosmic_class(c):
+    _, _, rtype, rlen = c.split(':')
+    if rlen == '0':
+        return 'No repeat'
+    if rtype == 'M':
+        return 'Imperfect'
+    return 'Perfect'
+
+
+def repeats_from_vcf(vcf,
+                     fasta,
+                     flanks,
+                     progress_interval,
+                     classify_allele=False,
+                     output=None):
+    ref_fasta = Fasta(fasta, sequence_always_upper=True, as_raw=True)
+    if output is not None:
+        o_func = gzip.open if output.endswith(".gz") else open
+        fh = o_func(output, 'wt')
+    else:
+        fh = sys.stdout
+    if not classify_allele:
+        csv_fields.append('cosmic_repeat_type')
+    csvwriter = csv.DictWriter(fh, fieldnames=csv_fields)
+    csvwriter.writeheader()
+    with pysam.VariantFile(vcf) as variants:
+        n = 0
+        for record in variants:
+            n_alleles = len(record.alleles)
+            for i in range(1, n_alleles):
+                n += 1
+                row = dict()
+                rpt_res = repeats_from_variant(variant=record,
+                                               fasta=ref_fasta,
+                                               allele=i,
+                                               min_flanks=flanks)
+                if (rpt_res.variant_type != 'Del'
+                        and rpt_res.variant_type != 'Ins'):
+                    continue
+                for attr in v_attrs:
+                    row[attr] = getattr(record, attr)
+                row['alt'] = record.alleles[i]
+                row['n_alleles'] = n_alleles
+                for attr in res_attrs:
+                    row[attr] = getattr(rpt_res, attr)
+                row['variant_length'] = abs(
+                    len(record.alleles[i]) - len(record.ref))
+                cc = repeat_result_to_ID83(rpt_res,
+                                           variant=record,
+                                           fasta=ref_fasta,
+                                           allele=i)
+                row['cosmic_class'] = cc
+                cosmic_repeat_type = repeat_type_from_cosmic_class(cc)
+                if classify_allele:
+                    row['repeat_type'] = cosmic_repeat_type
+                    if cosmic_repeat_type != 'No repeat':
+                        # alleles must be normalized for below to be accurate
+                        if rpt_res.variant_type == 'Del':
+                            row['repeat_unit'] = record.ref[1:]
+                        else:
+                            row['repeat_unit'] = record.alleles[i][1:]
+                else:
+                    row['cosmic_repeat_type'] = cosmic_repeat_type
+                csvwriter.writerow(row)
+                if n % progress_interval == 0:
+                    LOGGER.info(
+                        "Processed {:,} variants. ".format(n) +
+                        "At position {}:{}".format(record.chrom, record.pos))
+    fh.close()
+
+
+if __name__ == '__main__':
+    parser = get_options()
+    args = parser.parse_args()
+    repeats_from_vcf(**vars(args))
