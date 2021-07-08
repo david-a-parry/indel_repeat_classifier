@@ -16,7 +16,8 @@ setup(
     name="indel_repeat_classifier",
     packages=["indel_repeat_classifier"],
     scripts=[
-        "bin/short_repeats_from_fasta", "bin/filter_repeat_csv_by_regions"
+        "bin/short_repeats_from_fasta", "bin/filter_repeat_csv_by_regions",
+        "bin/indel_repeat_classifier"
     ],
     version=verstr,
     description="Module for classifying repeat context of indels from VCFs.",
