@@ -21,7 +21,7 @@ csv_fields = list(v_attrs + other_cols + res_attrs)
 
 def get_options():
     parser = argparse.ArgumentParser(
-        description='''Classify indels from a based on repeat context''')
+        description='''Classify indels based on repeat context''')
     parser.add_argument(
         "vcf",
         help='''Input vcf file containing indels. SNVs, MNVs and complex
