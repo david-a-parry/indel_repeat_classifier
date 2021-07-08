@@ -140,7 +140,8 @@ def find_repeats_in_fasta(fasta_path,
                           flanks=10,
                           seqnames=[],
                           blacklist=[],
-                          progress_interval=1_000_000):
+                          progress_interval=1_000_000,
+                          quiet=False):
     '''
     Output repeats from fasta file to CSV.
 
@@ -168,6 +169,10 @@ def find_repeats_in_fasta(fasta_path,
             progress_interval:
                     Log progress once this many repeats have been processed.
     '''
+    if quiet:
+        LOGGER.setLevel(logging.WARNING)
+    else:
+        LOGGER.setLevel(logging.INFO)
     fasta = Fasta(fasta_path, as_raw=True, sequence_always_upper=True)
     if not out_path.endswith('.gz'):
         out_path += '.gz'

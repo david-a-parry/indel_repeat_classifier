@@ -36,7 +36,7 @@ def get_options():
                         "--seqnames",
                         nargs='+',
                         metavar='SEQ',
-                        help='Only process these sequences in the fasta file')
+                        help='Only process these sequences in the fasta file.')
     parser.add_argument("-b",
                         "--blacklist",
                         nargs='+',
@@ -48,6 +48,10 @@ def get_options():
         type=int,
         default=1_000_000,
         help='Report progress every N records. Default=1000000')
+    parser.add_argument("-q",
+                        "--quiet",
+                        action='store_true',
+                        help='Do not report progress.')
     parser.add_argument("--version",
                         action='version',
                         version=rpt_classifer_ver,
@@ -55,8 +59,14 @@ def get_options():
     return parser
 
 
-def find_repeats(fasta, output_prefix, repeat_lengths, flanks, seqnames,
-                 blacklist, progress_interval):
+def find_repeats(fasta,
+                 output_prefix,
+                 repeat_lengths,
+                 flanks,
+                 seqnames,
+                 blacklist,
+                 progress_interval,
+                 quiet=False):
     for rpt_len in repeat_lengths:
         csv_out = "{}_{}.csv.gz".format(output_prefix, rpt_len)
         n = find_repeats_in_fasta(fasta,
@@ -65,7 +75,8 @@ def find_repeats(fasta, output_prefix, repeat_lengths, flanks, seqnames,
                                   flanks=flanks,
                                   seqnames=seqnames,
                                   blacklist=blacklist,
-                                  progress_interval=progress_interval)
+                                  progress_interval=progress_interval,
+                                  quiet=quiet)
         LOGGER.info("Found {:,} {:,} bp perfect/partial repeats".format(
             n, rpt_len))
 
