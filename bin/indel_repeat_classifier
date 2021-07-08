@@ -137,7 +137,9 @@ def repeats_from_vcf(vcf,
                 cosmic_repeat_type = repeat_type_from_cosmic_class(cc)
                 if classify_allele:
                     row['repeat_type'] = cosmic_repeat_type
-                    if cosmic_repeat_type != 'No repeat':
+                    if cosmic_repeat_type == 'No repeat':
+                        row['repeat_unit'] = None
+                    else:
                         # alleles must be normalized for below to be accurate
                         if rpt_res.variant_type == 'Del':
                             row['repeat_unit'] = record.ref[1:]
