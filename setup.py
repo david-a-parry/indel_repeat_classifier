@@ -28,8 +28,8 @@ setup(
     'https://git.ecdf.ed.ac.uk/RER_deletions_paper/indel_repeat_classifier/archive/{}.tar.gz'
     .format(verstr),
     license='MIT',
-    install_requires=['pyfaidx'],
-    tests_require=['nose2', 'pysam'],
+    install_requires=['pyfaidx', 'pysam'],
+    tests_require=['nose2'],
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
