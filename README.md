@@ -95,3 +95,9 @@ perfect 'AG' repeat. However, if you prefer the SigProfiler interpretation
 where this would be considered microhomology rather than a deletion of a perfect
 perfect repeat (e.g. "4:Del:M:2") use this flag to classify as a deletion at an
 "Imperfect" repeat.
+
+
+## AUTHOR
+
+Written by David A. Parry at the University of Edinburgh.
+
