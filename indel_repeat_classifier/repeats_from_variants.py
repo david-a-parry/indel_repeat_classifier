@@ -119,6 +119,12 @@ def repeats_from_variant(variant,
                 5 would result in retrieval and searching through 10 bp
                 sequence either side of the variant. This value therefore caps
                 the maximum repeat size that can be identified.
+
+        collapse_repeat_units:
+                Analyse repeats relative to the simplest repeating unit
+                regardless of indel length. Default behaviour is to analyze
+                repeats relative to the deleted/inserted nucleotides instead.
+
     '''
     var_type, rpt_type, rpt_unit, rpt_len, seq_ctxt = (None, "No repeat", None,
                                                        0, "")
