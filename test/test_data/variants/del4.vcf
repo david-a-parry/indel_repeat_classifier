@@ -1,6 +1,6 @@
 ##fileformat=VCFv4.2
 ##FILTER=<ID=PASS,Description="All filters passed">
-##reference=file:///home/david/source/repos/repeat_metrics/test/test_data/test.fasta
+##reference=file:///mnt/h/RER_Deletions_analysis/indel_repeat_classifier/test/test_data/test.fasta
 ##contig=<ID=1,length=102>
 ##contig=<ID=mh_2_1_f,length=120>
 ##contig=<ID=mh_2_1_r,length=120>
@@ -24,10 +24,15 @@
 ##contig=<ID=mh_5_4_r,length=120>
 ##contig=<ID=mh_7_6_f,length=120>
 ##contig=<ID=mh_7_6_r,length=120>
+##contig=<ID=1bp_rpts,length=35>
+##contig=<ID=2bp_rpts,length=44>
+##contig=<ID=3bp_rpts,length=30>
+##contig=<ID=4bp_rpts,length=29>
+##contig=<ID=5bp_rpts,length=36>
 ##ALT=<ID=*,Description="Represents allele(s) other than observed.">
 ##INFO=<ID=INDEL,Number=0,Type=Flag,Description="Indicates that the variant is an INDEL.">
-##INFO=<ID=IDV,Number=1,Type=Integer,Description="Maximum number of raw reads supporting an indel">
-##INFO=<ID=IMF,Number=1,Type=Float,Description="Maximum fraction of raw reads supporting an indel">
+##INFO=<ID=IDV,Number=1,Type=Integer,Description="Maximum number of reads supporting an indel">
+##INFO=<ID=IMF,Number=1,Type=Float,Description="Maximum fraction of reads supporting an indel">
 ##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw read depth">
 ##INFO=<ID=VDB,Number=1,Type=Float,Description="Variant Distance Bias for filtering splice-site artefacts in RNA-seq data (bigger is better)",Version="3">
 ##INFO=<ID=RPB,Number=1,Type=Float,Description="Mann-Whitney U test of Read Position Bias (bigger is better)">

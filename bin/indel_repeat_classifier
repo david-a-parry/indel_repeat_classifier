@@ -50,15 +50,18 @@ def get_options():
         that can be identified.''')
     parser.add_argument(
         "-c",
-        "--classify_allele",
+        "--collapse_alleles",
         action='store_true',
-        help='''Classify repeat type based on the insertion/deletion allele. For
-        example, a 4bp deletion of 'AGAG' in a 6bp repeat of 'AGAGAG' is by
-        default given the class of "Perfect" repeat as it lies within a perfect
-        'AG' repeat. However, if you prefer the SigProfiler interpretation where
-        this would be considered microhomology rather than a deletion of a
-        perfect repeat (e.g. "4:Del:M:2") use this flag to classify as a
-        deletion at an "Imperfect" repeat.''')
+        help='''Classify repeat type based on the simplest repeat unit within
+        insertion/deletion allele. For example, a 4bp deletion of 'AGAG' in a
+        6bp repeat of 'AGAGAG' is by default given the class of "Imperfect"
+        repeat as the deleted nucleotides are partially repeated. However, if
+        you prefer to give classify this type of deletion as lying in a
+        'Perfect' repeat (because the deletion is within a perfect 'AG' repeat)
+        use this flag to classify as a deletion at an "Perfect" repeat and to
+        output the repeat unit as 'AG'. This will also classify deletions of
+        entire repeat units as deletions of a "Perfect" repeat as long as the
+        deletion is limited to the repeat sequence.''')
     parser.add_argument("--progress_interval",
                         metavar='N',
                         type=int,
@@ -88,7 +91,7 @@ def repeats_from_vcf(vcf,
                      fasta,
                      flanks,
                      progress_interval,
-                     classify_allele=False,
+                     collapse_alleles=False,
                      output=None,
                      quiet=False):
     ref_fasta = Fasta(fasta, sequence_always_upper=True, as_raw=True)
@@ -97,7 +100,7 @@ def repeats_from_vcf(vcf,
         fh = o_func(output, 'wt')
     else:
         fh = sys.stdout
-    if not classify_allele:
+    if collapse_alleles:
         csv_fields.append('cosmic_repeat_type')
     if quiet:
         LOGGER.setLevel(logging.WARNING)
@@ -109,10 +112,12 @@ def repeats_from_vcf(vcf,
             n_alleles = len(record.alleles)
             for i in range(1, n_alleles):
                 row = dict()
-                rpt_res = repeats_from_variant(variant=record,
-                                               fasta=ref_fasta,
-                                               allele=i,
-                                               min_flanks=flanks)
+                rpt_res = repeats_from_variant(
+                    variant=record,
+                    fasta=ref_fasta,
+                    allele=i,
+                    min_flanks=flanks,
+                    collapse_repeat_units=collapse_alleles)
                 n += 1
                 if n % progress_interval == 0:
                     LOGGER.info(
@@ -135,17 +140,7 @@ def repeats_from_vcf(vcf,
                                            allele=i)
                 row['cosmic_class'] = cc
                 cosmic_repeat_type = repeat_type_from_cosmic_class(cc)
-                if classify_allele:
-                    row['repeat_type'] = cosmic_repeat_type
-                    if cosmic_repeat_type == 'No repeat':
-                        row['repeat_unit'] = None
-                    else:
-                        # alleles must be normalized for below to be accurate
-                        if rpt_res.variant_type == 'Del':
-                            row['repeat_unit'] = record.ref[1:]
-                        else:
-                            row['repeat_unit'] = record.alleles[i][1:]
-                else:
+                if collapse_alleles:
                     row['cosmic_repeat_type'] = cosmic_repeat_type
                 csvwriter.writerow(row)
     fh.close()
