@@ -126,6 +126,8 @@ def repeats_from_variant(variant, fasta, allele=1, min_flanks=10):
         var_type = 'SNV' if len(ref) == 1 else 'MNV'
     elif (len(ref) != 1 and len(alt) != 1) or ref[0] != alt[0]:
         var_type = 'Complex'
+    elif any(x not in 'ACGT' for x in ref + alt):
+        var_type = 'Ambiguous nucleotide'
     if var_type is not None:
         return RepeatResult(var_type, rpt_type, rpt_unit, rpt_len, seq_ctxt)
     start = pos - 1
