@@ -29,8 +29,46 @@ def test_dels():
         ('Del', "No repeat", None, 0,
          'agctgagagtcgtctcctcc' + 'tcctcAAGGtcgtgcacagtctattgcacgtcg'),
         'del2.vcf': ('Del', 'Perfect', 'GA', 4, 'agctGAgagtcgtctcct'),
-        'del3.vcf':
-        ('Del', 'Perfect', 'GA', 4, 'agctGAGAgtcgtctcctcctcctcaaggtcg'),
+        'del3.vcf': ('Del', 'Imperfect', 'G', 5,
+                     'agctGAGAgtcgtctcctcctcctcaaggtcg'),
+        'del4.vcf': ('Del', 'Perfect', 'CTC', 12,
+                     'agctgagagtcgtCTCctcctcctcaaggtcgtg'),
+        'del5.vcf':
+        ('Del', 'No repeat', None, 0,
+         'agctgagagtcgtCTCCTCCTCCTCaaggtcgtgcacagtct' +
+         'attgcacgtcgatgcgatgcgatgttgacagttagacacagt' + 'acacagtagagac'),
+        'del6.vcf': ('Del', 'Perfect', 'T', 2, 'agtctaTtgcacg'),
+        'del7.vcf':
+        ('Del', 'Imperfect', 'CGATG', 15,
+         'agctgagagtcgtctcctcctcctcaaggtcgtgcacagtct' +
+         'attgcacgtCGATGCGATGcgatgttgacagttagacacagtacacagtagagacagtag'),
+        'del8.vcf':
+        ('Del', 'Perfect', 'CGATG', 15,
+         'cctcaaggtcgtgcacagtctattgcacgtCGATGcgatgcgatgttgacagttagacacagtac'),
+    }
+    fasta = Fasta(ref_fasta, as_raw=True, sequence_always_upper=True)
+    for vcf, expected in vcf2expected.items():
+        records = get_variants(os.path.join(var_path, vcf))
+        result = repeats_from_variant(records[0],
+                                      fasta,
+                                      min_flanks=6,
+                                      collapse_repeat_units=False)
+        try:
+            assert result == expected
+        except AssertionError:
+            print(result, expected)
+            raise
+
+
+def test_dels_collapsed():
+    ''' Identify deletions in perfect repeats collapsing repeat units'''
+    vcf2expected = {
+        'del1.vcf':
+        ('Del', "No repeat", None, 0,
+         'agctgagagtcgtctcctcc' + 'tcctcAAGGtcgtgcacagtctattgcacgtcg'),
+        'del2.vcf': ('Del', 'Perfect', 'GA', 4, 'agctGAgagtcgtctcct'),
+        'del3.vcf': ('Del', 'Perfect', 'GA', 4,
+                     'agctGAGAgtcgtctcctcctcctcaaggtcg'),
         'del4.vcf': ('Del', 'Perfect', 'CTC', 12,
                      'agctgagagtcgtCTCctcctcctcaaggtcgtg'),
         'del5.vcf':
@@ -41,13 +79,23 @@ def test_dels():
         'del7.vcf':
         ('Del', 'Perfect', 'CGATG', 15,
          'agctgagagtcgtctcctcctcctcaaggtcgtgcacagtct' +
-         'attgcacgtCGATGCGATGcgatgttgacagttagacacagt' + 'acacagtagagacagtag'),
+         'attgcacgtCGATGCGATGcgatgttgacagttagacacagtacacagtagagacagtag'),
+        'del8.vcf':
+        ('Del', 'Perfect', 'CGATG', 15,
+         'cctcaaggtcgtgcacagtctattgcacgtCGATGcgatgcgatgttgacagttagacacagtac'),
     }
     fasta = Fasta(ref_fasta, as_raw=True, sequence_always_upper=True)
     for vcf, expected in vcf2expected.items():
         records = get_variants(os.path.join(var_path, vcf))
-        result = repeats_from_variant(records[0], fasta, min_flanks=6)
-        assert result == expected
+        result = repeats_from_variant(records[0],
+                                      fasta,
+                                      min_flanks=6,
+                                      collapse_repeat_units=True)
+        try:
+            assert result == expected
+        except AssertionError:
+            print(result, expected)
+            raise
 
 
 def test_ins():

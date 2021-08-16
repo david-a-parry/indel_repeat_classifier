@@ -10,7 +10,7 @@ mkdir -p $var_dir
 
 pyfasta split --header="${var_dir}/%(seqid)s.fasta" ${source_dir}/indels.fasta
 pyfasta split --header="${ref_dir}/%(seqid)s.fasta" ${source_dir}/test.fasta
-rename -v s/\ .+/.fasta/ ${var_dir}/*.fasta
+rename -f -v s/\ .+/.fasta/ ${var_dir}/*.fasta
 
 bowtie2-build $ref $ref
 

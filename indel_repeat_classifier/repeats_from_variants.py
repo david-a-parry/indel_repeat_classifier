@@ -91,7 +91,11 @@ def simplify_variant(variant, allele=1):
     return ref, alt, pos
 
 
-def repeats_from_variant(variant, fasta, allele=1, min_flanks=10):
+def repeats_from_variant(variant,
+                         fasta,
+                         allele=1,
+                         min_flanks=10,
+                         collapse_repeat_units=False):
     '''
     Find perfect repeats or microhomologies of indels. Assumes record comes
     from a normalized and left-aligned VCF.
@@ -115,6 +119,12 @@ def repeats_from_variant(variant, fasta, allele=1, min_flanks=10):
                 5 would result in retrieval and searching through 10 bp
                 sequence either side of the variant. This value therefore caps
                 the maximum repeat size that can be identified.
+
+        collapse_repeat_units:
+                Analyse repeats relative to the simplest repeating unit
+                regardless of indel length. Default behaviour is to analyze
+                repeats relative to the deleted/inserted nucleotides instead.
+
     '''
     var_type, rpt_type, rpt_unit, rpt_len, seq_ctxt = (None, "No repeat", None,
                                                        0, "")
@@ -141,7 +151,10 @@ def repeats_from_variant(variant, fasta, allele=1, min_flanks=10):
         var_type = 'Del'
         seq_ctxt += ref[0].lower() + ref[1:].upper() + \
             seq[l_flank + abs(var_length) + 1:].lower()
-        basic_rpt = simplify_repeat(ref[1:])
+        if collapse_repeat_units:
+            basic_rpt = simplify_repeat(ref[1:])
+        else:
+            basic_rpt = ref[1:]
         rpt_len = find_perfect_repeats_deletion(basic_rpt, seq[l_flank + 1:])
         if rpt_len:
             rpt_type = "Perfect"
@@ -154,7 +167,10 @@ def repeats_from_variant(variant, fasta, allele=1, min_flanks=10):
         seq_ctxt += alt[0].lower() + alt[1:].upper() + \
             seq[l_flank + 1:].lower()
         var_type = 'Ins'
-        basic_rpt = simplify_repeat(alt[1:])
+        if collapse_repeat_units:
+            basic_rpt = simplify_repeat(alt[1:])
+        else:
+            basic_rpt = alt[1:]
         rpt_len = find_perfect_repeats_insertion(basic_rpt, seq[l_flank + 1:])
         if rpt_len:
             rpt_type = "Perfect"
