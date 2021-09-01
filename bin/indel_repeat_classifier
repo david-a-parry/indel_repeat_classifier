@@ -32,8 +32,10 @@ def get_options():
     parser.add_argument(
         "vcf",
         help='''Input vcf file containing indels. SNVs, MNVs and complex
-        variants will be ignored. Variants MUST be left-aligned and normalized
-        (e.g. using `bcftools norm`).''')
+        variants will be ignored. It is recommended that variants are
+        left-aligned and normalized (e.g. using `bcftools norm`) prior to
+        running this tool but left-alignment and normalization will be attempted
+        where necessary.''')
     parser.add_argument("fasta",
                         help='Fasta file matching genome of vcf input.')
     parser.add_argument("-o",
