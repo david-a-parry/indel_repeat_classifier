@@ -207,6 +207,87 @@ def test_ins_cosmic_classification():
         assert result == expected
 
 
+def test_dels_pre_norm():
+    ''' Identify deletions at repeats which require left-alignment. '''
+    vcf2expected = {
+        'del2_nonorm.vcf': ('Del', 'Perfect', 'GA', 4, 'agctGAgagtcgtctcct'),
+        'del3_nonorm.vcf':
+        ('Del', 'Imperfect', 'G', 5, 'agctGAGAgtcgtctcctcctcctcaaggtcg'),
+        'del4_nonorm.vcf':
+        ('Del', 'Perfect', 'CTC', 12, 'agctgagagtcgtCTCctcctcctcaaggtcgtg'),
+        'del6_nonorm.vcf': ('Del', 'Perfect', 'T', 2, 'agtctaTtgcacg'),
+        'del7_nonorm.vcf':
+        ('Del', 'Imperfect', 'CGATG', 15,
+         'agctgagagtcgtctcctcctcctcaaggtcgtgcacagtct' +
+         'attgcacgtCGATGCGATGcgatgttgacagttagacacagtacacagtagagacagtag'),
+        'del8_nonorm.vcf':
+        ('Del', 'Perfect', 'CGATG', 15,
+         'cctcaaggtcgtgcacagtctattgcacgtCGATGcgatgcgatgttgacagttagacacagtac')
+    }
+    fasta = Fasta(ref_fasta, as_raw=True, sequence_always_upper=True)
+    for vcf, expected in vcf2expected.items():
+        records = get_variants(os.path.join(var_path, vcf))
+        result = repeats_from_variant(records[0],
+                                      fasta,
+                                      min_flanks=6,
+                                      collapse_repeat_units=False)
+        try:
+            assert result == expected
+        except AssertionError:
+            print(result, expected)
+            raise
+
+
+def test_mh_dels_pre_norm():
+    ''' Identify deletions at microhomology regions requiring left-alignment.'''
+    size2del = {
+        2: ('TC', 'cccccccccccccccaccaaTCtagcggcccccccccccccc'),
+        3: ('TTC', 'c' * 25 + 'acccaTTCtagcgg' + 'c' * 24,
+            'c' * 25 + 'acccaTTCttagcgg' + 'c' * 23),
+        4: ('TATC', 'c' * 35 + 'acccaTATCttagcgg' + 'c' * 33,
+            'c' * 35 + 'acccaTATCtaagcgg' + 'c' * 33,
+            'c' * 35 + 'acccaTATCtatagcgg' + 'c' * 32),
+        5: ('TAGTC', 'c' * 45 + 'acccaTAGTCttagcgg' + 'c' * 43,
+            'c' * 45 + 'acccaTAGTCtaagcgg' + 'c' * 43,
+            'c' * 45 + 'acccaTAGTCtagagcgg' + 'c' * 42,
+            'c' * 45 + 'acccaTAGTCtagtagcgg' + 'c' * 41),
+        7: ('TAGCCTC', 'c' * 50 + 'acccaTAGCCTCtagcctagcgg' + 'c' * 47)
+    }
+    for i in range(2, 6):
+        for j in range(i - 1, i):
+            base = "mh_{}_{}_f".format(i, j)
+            mh_fa = os.path.join(fa_path, base + '.fasta')
+            records = get_variants(os.path.join(var_path,
+                                                base + '.nonorm.vcf'))
+            fasta = Fasta(mh_fa, as_raw=True, sequence_always_upper=True)
+            mh_seq = size2del[i][0][:j]
+            seq_context = size2del[i][j]
+            expected = ('Del', 'Imperfect', mh_seq, i + j, seq_context)
+            result = repeats_from_variant(records[0], fasta)
+            assert result == expected
+
+
+def test_ins_pre_norm():
+    ''' Identify insertions in perfect repeats requiring left-alignment'''
+    vcf2expected = {
+        "ins2_nonorm.vcf":
+        ('Ins', 'Perfect', 'GA', 4, 'agctGAgagagtcgtctcctcctcct'),
+        "ins3_nonorm.vcf": ('Ins', 'Perfect', 'CGATG', 15,
+                            'agctgagagtcgtctcctcctcctcaaggtcgtgcacagtct' +
+                            'attgcacgtCGATGcgatgcgatgcgatgttgacagttagac' +
+                            'acagtacacagtagagacagta'),
+        "ins4_nonorm.vcf":
+        ('Ins', 'Perfect', 'AGG', 3,
+         'agctgagagtcgtctcctcctcctcaAGGaggtcgtgcacag' + 'tctattgcacgtcgatg'),
+        "ins5_nonorm.vcf": ('Ins', 'Perfect', 'T', 2, 'gcacagtctaTttgcacgtcg'),
+    }
+    fasta = Fasta(ref_fasta, as_raw=True, sequence_always_upper=True)
+    for vcf, expected in vcf2expected.items():
+        records = get_variants(os.path.join(var_path, vcf))
+        result = repeats_from_variant(records[0], fasta)
+        assert result == expected
+
+
 if __name__ == '__main__':
     import nose2
     nose2.main()

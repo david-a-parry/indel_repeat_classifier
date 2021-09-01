@@ -71,7 +71,54 @@ def find_microhomology(indel, seq, p):
     return rpt_len, mh
 
 
-def simplify_variant(variant, allele=1):
+def left_align_deletion(chrom, pos, ref, alt, fasta):
+    ref_len = len(ref)
+    alt_len = len(alt)
+    if alt != ref[:alt_len]:
+        return ref, alt, pos  # ignore complex indels
+    seq = fasta[chrom]
+    start = pos - 1
+    end = start + ref_len
+    while seq[start] == seq[end - 1] and start > 0:
+        start -= 1
+        end -= 1
+        ref = seq[start:end]
+        alt = ref[:alt_len]
+    pos = start + 1
+    return ref, alt, pos
+
+
+def left_align_insertion(chrom, pos, ref, alt, fasta):
+    ref_len = len(ref)
+    alt_len = len(alt)
+    if alt[:ref_len] != ref:
+        return ref, alt, pos  # ignore complex indels
+    seq = fasta[chrom]
+    start = pos - 1
+    end = start + ref_len
+    var_len = alt_len - ref_len
+    while alt[-1] == seq[start] and start > 0:
+        start -= 1
+        end -= 1
+        alt = seq[start] + alt[:-1]
+        ref = seq[start:end]
+    pos = start + 1
+    return ref, alt, pos
+
+
+def left_align_variant(chrom, pos, ref, alt, fasta):
+    ''' Left align a simplified variant to reference genome. '''
+    ref_len = len(ref)
+    alt_len = len(alt)
+    if ref_len > alt_len and ref[:alt_len] == alt:
+        return left_align_deletion(chrom, pos, ref, alt, fasta)
+    elif ref_len < alt_len and alt[:ref_len] == ref:
+        return left_align_insertion(chrom, pos, ref, alt, fasta)
+    return ref, alt, pos
+
+
+def simplify_variant(variant, fasta, allele=1):
+    ''' Get the simplest representations of REF/ALT alleles and left-align. '''
     ref = variant.ref
     alt = variant.alleles[allele]
     pos = variant.pos
@@ -88,7 +135,7 @@ def simplify_variant(variant, allele=1):
             pos += 1
         else:
             break
-    return ref, alt, pos
+    return left_align_variant(variant.chrom, pos, ref, alt, fasta)
 
 
 def repeats_from_variant(variant,
@@ -129,7 +176,7 @@ def repeats_from_variant(variant,
     var_type, rpt_type, rpt_unit, rpt_len, seq_ctxt = (None, "No repeat", None,
                                                        0, "")
     pos = variant.pos
-    ref, alt, pos = simplify_variant(variant, allele)
+    ref, alt, pos = simplify_variant(variant, fasta, allele)
     var_length = len(alt) - len(ref)
     flanks = abs(var_length) * min_flanks
     if var_length == 0:
@@ -202,7 +249,7 @@ def repeat_result_to_ID83(rpt_res, variant, fasta, allele):
     if rpt_size > 0 and rpt_res.variant_type == 'Del':
         rpt_size -= 1
     if var_len == 1:  # can only be perfect homopolymer repeat or no repeat
-        ref, alt, pos = simplify_variant(variant, allele=allele)
+        ref, alt, pos = simplify_variant(variant, fasta, allele=allele)
         if rpt_res.variant_type == 'Del':
             nt = nt_conversion[ref[1]]
         else:
@@ -211,7 +258,7 @@ def repeat_result_to_ID83(rpt_res, variant, fasta, allele):
     if rpt_size == 0 and rpt_res.repeat_type == 'Perfect':
         #  if entire deletion does not repeat COSMIC considers it microhomology
         #  even in case of e.g. 'GAGA' deletion in a perfect 'GAGAGA' repeat
-        ref, alt, pos = simplify_variant(variant)
+        ref, alt, pos = simplify_variant(variant, fasta)
         start = pos - var_len
         end = pos + var_len * 2
         seq = fasta[variant.chrom][start:end]
