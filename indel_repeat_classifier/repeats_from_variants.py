@@ -250,10 +250,10 @@ def repeat_result_to_ID83(rpt_res, variant, fasta, allele):
         rpt_size -= 1
     if var_len == 1:  # can only be perfect homopolymer repeat or no repeat
         ref, alt, pos = simplify_variant(variant, fasta, allele=allele)
-        if rpt_res.variant_type == 'Del':
-            nt = nt_conversion[ref[1]]
+        if len(variant.ref) > len(variant.alleles[allele]):
+            nt = nt_conversion.get(ref[1], 'N')
         else:
-            nt = nt_conversion[alt[1]]
+            nt = nt_conversion.get(alt[1], 'N')
         return '1:{}:{}:{}'.format(rpt_res.variant_type, nt, min(rpt_size, 5))
     if rpt_size == 0 and rpt_res.repeat_type == 'Perfect':
         #  if entire deletion does not repeat COSMIC considers it microhomology
