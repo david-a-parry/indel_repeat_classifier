@@ -32,9 +32,11 @@ or by using pip, if installed:
 ## USAGE
 
 For all available options for the provided scripts run with the `--help` flag
-(e.g. `indel_repeat_classifier --help`). Please note that any VCF provided to
-the indel_repeat_classifier script must first be normalized and left-aligned
-(e.g. using `bcftools norm`).
+(e.g. `indel_repeat_classifier --help`). Note that indel context is assessed
+after simplifying and left-aligning variants. However the position, ref allele
+and alt allele will be reported the same as provided in the VCF provided. You
+may find it convenient to left-align variants prior to running
+indel_repeat_classifier (e.g. using `bcftools norm`).
 
 ### Examples
 
@@ -45,12 +47,20 @@ indel_repeat_classifier script:
 
 The output will be CSV format:
 
-    chrom,pos,ref,alt,n_alleles,variant_length,cosmic_class,variant_type,repeat_type,repeat_unit,repeat_length,sequence,cosmic_repeat_type
-    1,25,CAAGG,C,2,4,4:Del:R:0,Del,No repeat,,0,agagtcgtctcctcctcctcAAGGtcgtgcacagtctattgcac,No repeat
-    1,4,TGA,T,2,2,2:Del:R:1,Del,Perfect,GA,4,agctGAgagtcgtctc,Perfect
-    1,4,TGAGA,T,2,4,4:Del:M:1,Del,Perfect,GA,4,agctGAGAgtcgtctcctcctcctcaag,Imperfect
-    1,13,TCTC,T,2,3,3:Del:R:3,Del,Perfect,CTC,12,agctgagagtcgtCTCctcctcctcaaggtc,Perfect
-    1,13,TCTCCTCCTCCTC,T,2,12,5:Del:R:0,Del,Perfect,CTC,12,agctgagagtcgtCTCCTCCTCCTCaaggtcgtgcacagtctattgcacgtcgatgcgatgcgatgttgacagttagacacagta,No repeat
+    chrom,pos,ref,alt,n_alleles,variant_length,cosmic_class,variant_type,repeat_type,repeat_unit,repeat_length,sequence
+    1,25,CAAGG,C,2,4,4:Del:R:0,Del,No repeat,,0,agctgagagtcgtctcctcctcctcAAGGtcgtgcacagtctattgcacgtcgatgcgatgcgatgttg
+    1,4,TGA,T,2,2,2:Del:R:1,Del,Perfect,GA,4,agctGAgagtcgtctcctcctcctca
+    1,4,TGAGA,T,2,4,4:Del:M:1,Del,Imperfect,G,5,agctGAGAgtcgtctcctcctcctcaaggtcgtgcacagtctattgca
+    1,13,TCTC,T,2,3,3:Del:R:3,Del,Perfect,CTC,12,agctgagagtcgtCTCctcctcctcaaggtcgtgcacagtctattg
+    1,13,TCTCCTCCTCCTC,T,2,12,5:Del:R:0,Del,No repeat,,0,agctgagagtcgtCTCCTCCTCCTCaaggtcgtgcacagtctattgcacgtcgatgcgatgcgatgttgacagttagacacagtacacagtagagacagtag
+    1,43,AT,A,2,1,1:Del:T:1,Del,Perfect,T,2,gcacagtctaTtgcacgtcga
+    1,51,TCGATGCGATG,T,2,10,5:Del:M:5,Del,Imperfect,CGATG,15,agctgagagtcgtctcctcctcctcaaggtcgtgcacagtctattgcacgtCGATGCGATGcgatgttgacagttagacacagtacacagtagagacagtag
+    1,51,TCGATG,T,2,5,5:Del:R:2,Del,Perfect,CGATG,15,agctgagagtcgtctcctcctcctcaaggtcgtgcacagtctattgcacgtCGATGcgatgcgatgttgacagttagacacagtacacagtagagacagtag
+    1,27,A,ATC,2,2,2:Ins:R:0,Ins,No repeat,,0,agtcgtctcctcctcctcaaTCggtcgtgcacagtctattgc
+    1,4,T,TGA,2,2,2:Ins:R:2,Ins,Perfect,GA,4,agctGAgagagtcgtctcctcctcct
+    1,51,T,TCGATG,2,5,5:Ins:R:3,Ins,Perfect,CGATG,15,agctgagagtcgtctcctcctcctcaaggtcgtgcacagtctattgcacgtCGATGcgatgcgatgcgatgttgacagttagacacagtacacagtagagacagta
+    1,26,A,AAGG,2,3,3:Ins:R:1,Ins,Perfect,AGG,3,agctgagagtcgtctcctcctcctcaAGGaggtcgtgcacagtctattgcacgtcgatg
+    1,43,A,AT,2,1,1:Ins:T:2,Ins,Perfect,T,2,gcacagtctaTttgcacgtcg
 
 Output all repeats between of 2-4 bp in a given fasta file:
 
@@ -83,18 +93,19 @@ repeats with microhomology) are classified as "Imperfect" (e.g. "AGAT" is an
 imperfect repeat of "AG"). Sequence context is given with the deleted bases (or
 repeat unit if using `short_repeats_from_fasta`) in uppercase and flanking bases
 in lowercase. For variant data the cosmic classifications relating to the
-[ID83](https://cancer.sanger.ac.uk/signatures/id/) signatures are also provided.
+[ID83](https://cancer.sanger.ac.uk/signatures/id/) signatures are also
+provided.
 
-By default, for variant data the Perfect/Imperfect classification refers to
-whether the repeat overlapping the deletion is a Perfect/Imperfect repeat , but
-this behaviour can be modified using the `--classify_allele` flag where the
-Perfect/Imperfect classification refers to whether the insertion/deletion allele
-itself is repeated. For example, a 4bp deletion of 'AGAG' in a 6bp repeat of
-'AGAGAG' is by default given the class of "Perfect" repeat as it lies within a
-perfect 'AG' repeat. However, if you prefer the SigProfiler interpretation
-where this would be considered microhomology rather than a deletion of a perfect
-perfect repeat (e.g. "4:Del:M:2") use this flag to classify as a deletion at an
-"Imperfect" repeat.
+By default, for variant data the Perfect/Imperfect classification refers to the
+COSMIC ID83 style classification where, for example, a 4bp deletion of 'AGAG'
+in a 6bp repeat of 'AGAGAG' is by default given the class of "Imperfect" repeat
+as the deleted nucleotides are partially repeated. However, if you prefer to
+classify this type of deletion as lying in a 'Perfect' repeat (because the
+deletion is within a perfect 'AG' repeat) use the --collapse_alleles flag to
+classify as a deletion at an "Perfect" repeat and to output the repeat unit as
+'AG'. This will also classify deletions of entire repeat units as deletions of
+a "Perfect" repeat as long as the deletion is limited to the repeat sequence.
+Note that ID83 classifications will not be affected by this option.
 
 
 ## AUTHOR

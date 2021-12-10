@@ -9,6 +9,8 @@ from pyfaidx import Fasta
 from indel_repeat_classifier.version import __version__ as rpt_classifer_ver
 from indel_repeat_classifier.repeats_from_variants import repeats_from_variant
 from indel_repeat_classifier.repeats_from_variants import repeat_result_to_ID83
+from indel_repeat_classifier.repeats_from_variants import cosmic_ID83_classification
+
 
 LOGGER = logging.getLogger("Indel Repeat Classifier")
 LOGGER.setLevel(logging.INFO)
@@ -58,12 +60,12 @@ def get_options():
         insertion/deletion allele. For example, a 4bp deletion of 'AGAG' in a
         6bp repeat of 'AGAGAG' is by default given the class of "Imperfect"
         repeat as the deleted nucleotides are partially repeated. However, if
-        you prefer to give classify this type of deletion as lying in a
-        'Perfect' repeat (because the deletion is within a perfect 'AG' repeat)
-        use this flag to classify as a deletion at an "Perfect" repeat and to
-        output the repeat unit as 'AG'. This will also classify deletions of
-        entire repeat units as deletions of a "Perfect" repeat as long as the
-        deletion is limited to the repeat sequence.''')
+        you prefer to classify this type of deletion as lying in a 'Perfect'
+        repeat (because the deletion is within a perfect 'AG' repeat) use this
+        flag to classify as a deletion at an "Perfect" repeat and to output the
+        repeat unit as 'AG'. This will also classify deletions of entire repeat
+        units as deletions of a "Perfect" repeat as long as the deletion is
+        limited to the repeat sequence.''')
     parser.add_argument("--progress_interval",
                         metavar='N',
                         type=int,
@@ -136,10 +138,15 @@ def repeats_from_vcf(vcf,
                     row[attr] = getattr(rpt_res, attr)
                 row['variant_length'] = abs(
                     len(record.alleles[i]) - len(record.ref))
-                cc = repeat_result_to_ID83(rpt_res,
-                                           variant=record,
-                                           fasta=ref_fasta,
-                                           allele=i)
+                if collapse_alleles:
+                    cc = cosmic_ID83_classification(variant=record,
+                                                    fasta=ref_fasta,
+                                                    allele=i)
+                else:
+                    cc = repeat_result_to_ID83(rpt_res,
+                                               variant=record,
+                                               fasta=ref_fasta,
+                                               allele=i)
                 row['cosmic_class'] = cc
                 cosmic_repeat_type = repeat_type_from_cosmic_class(cc)
                 if collapse_alleles:

@@ -231,7 +231,9 @@ def repeat_result_to_ID83(rpt_res, variant, fasta, allele):
     classification.
 
     Args:
-        rpt_res: RepeatResult namedtuple returned by repeats_from_variant.
+        rpt_res: RepeatResult namedtuple returned by repeats_from_variant (note
+                 that repeats_from_variant should have been run with the
+                 default collapse_repeat_units=False argument.
 
         variant: pysam.VariantRecord
 
